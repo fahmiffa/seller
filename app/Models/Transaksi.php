@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -7,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 class Transaksi extends Model
 {
     protected $primaryKey = 'transaksi_id';
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
 
     protected $fillable = [
         'customer_id',

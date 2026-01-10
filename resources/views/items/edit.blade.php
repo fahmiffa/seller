@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <form action="{{ route('items.update', $item) }}" method="POST" id="item-form">
+                    <form action="{{ route('items.update', $item) }}" method="POST" id="item-form" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         
@@ -95,6 +95,21 @@
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
+
+                            <div class="mb-4">
+                                <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Gambar Produk</label>
+                                <input type="file" name="image" id="image" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" accept="image/*" onchange="previewImage(event)">
+                                <div class="mt-2">
+                                    @if($item->image)
+                                        <img id="image-preview" src="{{ asset('storage/' . $item->image) }}" alt="Preview Gambar" class="h-32 w-auto rounded shadow-sm">
+                                    @else
+                                        <img id="image-preview" src="#" alt="Preview Gambar" class="hidden h-32 w-auto rounded shadow-sm">
+                                    @endif
+                                </div>
+                                @error('image')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-end mt-4">
@@ -119,14 +134,24 @@
             const stokSection = document.getElementById('stok_section');
 
             if (tipe === 'jasa') {
-                supplierSection.classList.add('hidden');
-                hargaBeliSection.classList.add('hidden');
-                stokSection.classList.add('hidden');
+                if (supplierSection) supplierSection.classList.add('hidden');
+                if (hargaBeliSection) hargaBeliSection.classList.add('hidden');
+                if (stokSection) stokSection.classList.add('hidden');
             } else {
-                supplierSection.classList.remove('hidden');
-                hargaBeliSection.classList.remove('hidden');
-                stokSection.classList.remove('hidden');
+                if (supplierSection) supplierSection.classList.remove('hidden');
+                if (hargaBeliSection) hargaBeliSection.classList.remove('hidden');
+                if (stokSection) stokSection.classList.remove('hidden');
             }
+        }
+
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const preview = document.getElementById('image-preview');
+                preview.src = reader.result;
+                preview.classList.remove('hidden');
+            }
+            reader.readAsDataURL(event.target.files[0]);
         }
 
         // Initialize on load

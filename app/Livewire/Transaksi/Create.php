@@ -15,46 +15,73 @@ class Create extends Component
     public $customer_id;
     public $tanggal_transaksi;
     public $metode_pembayaran = 'tunai';
-    public $items_list = []; // To store items added to the transaction
-
-    public $item_temp_id;
-    public $qty_temp = 1;
-    public $harga_temp;
+    public $items_list = [];
+    public $search = '';
+    public $showAll = false;
 
     public function mount()
     {
         $this->tanggal_transaksi = date('Y-m-d');
     }
 
-    public function addItem()
+    public function addToCart($itemId)
     {
-        $this->validate([
-            'item_temp_id' => 'required|exists:items,item_id',
-            'qty_temp' => 'required|integer|min:1',
-            'harga_temp' => 'required|numeric|min:0',
-        ]);
+        $item = Item::find($itemId);
+        
+        // Find if already in list
+        $existingPos = -1;
+        foreach ($this->items_list as $index => $listItem) {
+            if ($listItem['item_id'] == $itemId) {
+                $existingPos = $index;
+                break;
+            }
+        }
 
-        $item = Item::find($this->item_temp_id);
+        if ($existingPos !== -1) {
+            $this->incrementQty($existingPos);
+        } else {
+            // Check stock for goods
+            if ($item->tipe_item === 'barang' && $item->stok < 1) {
+                session()->flash('error', 'Stok tidak mencukupi!');
+                return;
+            }
 
-        // Check stock for goods
-        if ($item->tipe_item === 'barang' && $item->stok < $this->qty_temp) {
-            session()->flash('error', 'Stok tidak mencukupi! Stok tersedia: ' . $item->stok);
+            $this->items_list[] = [
+                'item_id' => $item->item_id,
+                'nama_item' => $item->nama_item,
+                'tipe_item' => $item->tipe_item,
+                'qty' => 1,
+                'harga_satuan' => $item->harga_jual,
+                'subtotal' => $item->harga_jual,
+            ];
+        }
+    }
+
+    public function incrementQty($index)
+    {
+        $item = Item::find($this->items_list[$index]['item_id']);
+        if ($item->tipe_item === 'barang' && $item->stok <= $this->items_list[$index]['qty']) {
+            session()->flash('error', 'Stok terbatas!');
             return;
         }
 
-        $this->items_list[] = [
-            'item_id' => $item->item_id,
-            'nama_item' => $item->nama_item,
-            'tipe_item' => $item->tipe_item,
-            'qty' => $this->qty_temp,
-            'harga_satuan' => $this->harga_temp,
-            'subtotal' => $this->qty_temp * $this->harga_temp,
-        ];
+        $this->items_list[$index]['qty']++;
+        $this->items_list[$index]['subtotal'] = $this->items_list[$index]['qty'] * $this->items_list[$index]['harga_satuan'];
+    }
 
-        // Reset temp
-        $this->item_temp_id = null;
-        $this->qty_temp = 1;
-        $this->harga_temp = null;
+    public function decrementQty($index)
+    {
+        if ($this->items_list[$index]['qty'] > 1) {
+            $this->items_list[$index]['qty']--;
+            $this->items_list[$index]['subtotal'] = $this->items_list[$index]['qty'] * $this->items_list[$index]['harga_satuan'];
+        } else {
+            $this->removeItem($index);
+        }
+    }
+
+    public function clearCart()
+    {
+        $this->items_list = [];
     }
 
     public function removeItem($index)
@@ -94,7 +121,6 @@ class Create extends Component
                     'subtotal' => $item['subtotal'],
                 ]);
 
-                // Update stock if it's goods (decrease stock)
                 $product = Item::find($item['item_id']);
                 if ($product->tipe_item === 'barang') {
                     $product->decrement('stok', $item['qty']);
@@ -103,22 +129,23 @@ class Create extends Component
         });
 
         session()->flash('success', 'Transaksi berhasil disimpan.');
-        return $this->redirect(route('transaksis.index'), navigate: true);
-    }
-
-    public function updatedItemTempId($value)
-    {
-        if ($value) {
-            $item = Item::find($value);
-            $this->harga_temp = $item->harga_jual;
-        }
+        return $this->redirect(route('transaksis.index'));
     }
 
     public function render()
     {
+        $query = Item::where('user_id', Auth::id())
+            ->where('nama_item', 'like', '%' . $this->search . '%');
+
+        if (!$this->showAll && empty($this->search)) {
+            $query->limit(12);
+        }
+
+        $items = $query->get();
+
         return view('livewire.transaksi.create', [
-            'customers' => Customer::all(),
-            'items' => Item::all(), // Both goods and services can be sold
+            'customers' => Customer::where('user_id', Auth::id())->get(),
+            'items' => $items,
         ]);
     }
 }

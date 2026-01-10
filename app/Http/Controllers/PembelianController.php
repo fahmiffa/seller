@@ -10,7 +10,7 @@ class PembelianController extends Controller
      */
     public function index()
     {
-        $pembelians = \App\Models\Pembelian::with(['supplier', 'user'])->latest()->paginate(10);
+        $pembelians = \App\Models\Pembelian::where('user_id', auth()->id())->with(['supplier', 'user'])->latest()->paginate(10);
         return view('pembelians.index', compact('pembelians'));
     }
 
@@ -35,6 +35,11 @@ class PembelianController extends Controller
      */
     public function show(\App\Models\Pembelian $pembelian)
     {
+        // Check if pembelian belongs to current user
+        if ($pembelian->user_id != auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk melihat pembelian ini.');
+        }
+
         $pembelian->load(['supplier', 'user', 'details.item']);
         return view('pembelians.show', compact('pembelian'));
     }
@@ -60,6 +65,11 @@ class PembelianController extends Controller
      */
     public function destroy(\App\Models\Pembelian $pembelian)
     {
+        // Check if pembelian belongs to current user
+        if ($pembelian->user_id != auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus pembelian ini.');
+        }
+
         $pembelian->delete();
         return redirect()->route('pembelians.index')->with('success', 'Pembelian berhasil dihapus.');
     }

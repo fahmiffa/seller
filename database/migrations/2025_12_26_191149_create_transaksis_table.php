@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->date('tanggal_transaksi');
             $table->decimal('total_harga', 15, 2);
-            $table->enum('metode_pembayaran', ['tunai', 'transfer', 'kredit']);
+            $table->enum('metode_pembayaran', ['tunai', 'transfer', 'qris', 'kredit']);
             $table->timestamps();
         });
     }

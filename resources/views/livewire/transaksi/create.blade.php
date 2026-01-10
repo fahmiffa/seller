@@ -1,130 +1,273 @@
-<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-    <div class="p-6 text-gray-900 dark:text-gray-100">
-        @if (session()->has('error'))
-            <div class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-                <p>{{ session('error') }}</p>
+<div x-data="{ 
+    pendingList: JSON.parse(localStorage.getItem('pending_trans') || '[]'),
+    savePending() {
+        // Use $wire to get the most recent state from Livewire
+        const items = $wire.items_list;
+        if (!items || items.length === 0) {
+            alert('Keranjang masih kosong!');
+            return;
+        }
+        
+        const newTrans = {
+            id: Date.now(),
+            name: 'Transaksi #' + (this.pendingList.length + 1) + ' (' + new Date().toLocaleTimeString() + ')',
+            items: JSON.parse(JSON.stringify(items)),
+            customer_id: $wire.customer_id,
+            metode: $wire.metode_pembayaran,
+            total: $wire.total
+        };
+        
+        this.pendingList.push(newTrans);
+        localStorage.setItem('pending_trans', JSON.stringify(this.pendingList));
+        $wire.clearCart();
+    },
+    restorePending(index) {
+        const trans = this.pendingList[index];
+        $wire.set('items_list', trans.items);
+        $wire.set('customer_id', trans.customer_id);
+        $wire.set('metode_pembayaran', trans.metode);
+        
+        this.pendingList.splice(index, 1);
+        localStorage.setItem('pending_trans', JSON.stringify(this.pendingList));
+    },
+    removePending(index) {
+        if(confirm('Hapus transaksi pending ini?')) {
+            this.pendingList.splice(index, 1);
+            localStorage.setItem('pending_trans', JSON.stringify(this.pendingList));
+        }
+    }
+}" class="flex flex-col gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <!-- Left Side: Product Selection -->
+        <div class="md:col-span-8 space-y-4">
+            <!-- Search Bar -->
+            <div class="relative">
+                <input type="text" wire:model.live="search" placeholder="Cari Items"
+                    class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-lg shadow-sm py-3 px-4">
             </div>
-        @endif
 
-        <form wire:submit="save">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div>
-                    <label for="customer_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Customer (Opsional)</label>
-                    <select wire:model="customer_id" id="customer_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                        <option value="">Umum</option>
-                        @foreach($customers as $customer)
-                            <option value="{{ $customer->customer_id }}">{{ $customer->nama }}</option>
-                        @endforeach
-                    </select>
-                    @error('customer_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+            <div class="flex justify-center">
+                @if(!$showAll)
+                    <button wire:click="$set('showAll', true)" class="text-blue-600 font-semibold hover:underline">
+                        Lihat Semua Produk
+                    </button>
+                @else
+                    <button wire:click="$set('showAll', false)" class="text-blue-600 font-semibold hover:underline">
+                        Sembunyikan Sebagian
+                    </button>
+                @endif
+            </div>
+
+            <!-- Product Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                @foreach ($items as $item)
+                    <div wire:click="addToCart({{ $item->item_id }})"
+                        class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition cursor-pointer flex flex-col items-center text-center relative overflow-hidden">
+                        <div
+                            class="absolute top-2 right-2 bg-gray-50 dark:bg-gray-700 px-2 py-1 rounded text-xs font-bold text-gray-600 dark:text-gray-300">
+                            {{ number_format($item->harga_jual, 0, ',', '.') }}
+                        </div>
+
+                        <div
+                            class="w-24 h-24 mb-4 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            @if ($item->image)
+                                <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->nama_item }}"
+                                    class="max-w-full max-h-full object-contain">
+                            @else
+                                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            @endif
+                        </div>
+
+                        <h4 class="text-sm font-medium text-gray-800 dark:text-gray-200 line-clamp-2">
+                            {{ $item->nama_item }}</h4>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Right Side: Transaction/Cart -->
+        <div class="md:col-span-4 flex flex-col gap-4">
+            <div
+                class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-full flex flex-col">
+                <h3 class="text-xl font-bold mb-6 text-gray-800 dark:text-gray-200">Transaksi</h3>
+
+                <!-- Cart Items Scrollable -->
+                <div class="flex-grow overflow-y-auto space-y-6 mb-6 pr-2" style="max-height: 500px;">
+                    @forelse($items_list as $index => $item)
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex-grow">
+                                <h5 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                    {{ $item['nama_item'] }}</h5>
+                                <div class="text-xs text-gray-500 mb-2">
+                                    {{ number_format($item['harga_satuan'], 0, ',', '.') }}</div>
+
+                                <div class="flex items-center gap-2">
+                                    <button wire:click="decrementQty({{ $index }})"
+                                        class="w-8 h-8 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 focus:outline-none">-</button>
+                                    <input type="text" value="{{ $item['qty'] }}"
+                                        class="w-12 h-8 text-center border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded p-0 text-sm"
+                                        readonly>
+                                    <button wire:click="incrementQty({{ $index }})"
+                                        class="w-8 h-8 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 focus:outline-none">+</button>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end gap-4">
+                                <span class="text-sm font-bold">Rp
+                                    {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
+                                <button wire:click="removeItem({{ $index }})"
+                                    class="text-gray-400 hover:text-red-500 transition">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-10 text-gray-400">
+                            <p>Belum ada produk dipilih</p>
+                        </div>
+                    @endforelse
                 </div>
 
-                <div>
-                    <label for="tanggal_transaksi" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tanggal Transaksi</label>
-                    <input type="date" wire:model="tanggal_transaksi" id="tanggal_transaksi" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
-                    @error('tanggal_transaksi') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                <hr class="border-gray-100 dark:border-gray-700 mb-4">
+
+                <!-- Total -->
+                <div class="flex justify-between items-center mb-8">
+                    <span class="text-xl font-bold text-gray-800 dark:text-gray-200">Total</span>
+                    <span class="text-2xl font-black text-gray-900 dark:text-white">Rp
+                        {{ number_format($this->total, 0, ',', '.') }}</span>
                 </div>
 
-                <div>
-                    <label for="metode_pembayaran" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Metode Pembayaran</label>
-                    <select wire:model="metode_pembayaran" id="metode_pembayaran" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
-                        <option value="tunai">Tunai</option>
-                        <option value="transfer">Transfer</option>
-                        <option value="kredit">Kredit</option>
-                    </select>
-                    @error('metode_pembayaran') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                <!-- Footer Buttons -->
+                <div class="grid grid-cols-5 gap-2">
+                    <button type="button" wire:click="clearCart"
+                        class="col-span-1 bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg flex items-center justify-center transition"
+                        title="Clear">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                            </path>
+                        </svg>
+                    </button>
+                    <button type="button" @click="savePending()"
+                        class="col-span-1 bg-slate-800 hover:bg-slate-900 text-white p-3 rounded-lg flex flex-col items-center justify-center transition text-[10px]"
+                        title="Pending">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Pending
+                    </button>
+                    <button type="button" class="col-span-1 bg-gray-200 hover:bg-gray-300 text-gray-700 p-3 rounded-lg flex flex-col items-center justify-center transition text-[10px]"
+                        title="Print 58mm">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 00-2 2h2m2 4h10a2 2 0 002-2v-3a2 2 0 012-2H7a2 2 0 012 2v3a2 2 0 002 2zm0 0v-8a2 2 0 012-2h6a2 2 0 012 2v8">
+                            </path>
+                        </svg>
+                        58
+                    </button>
+                    <button type="button" class="col-span-1 bg-gray-200 hover:bg-gray-300 text-gray-700 p-3 rounded-lg flex flex-col items-center justify-center transition text-[10px]"
+                        title="Print A4">
+                        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        A4
+                    </button>
+                    <button type="button" wire:click="save"
+                        class="col-span-1 bg-blue-500 hover:bg-blue-600 text-white font-bold p-3 rounded-lg flex items-center justify-center transition">
+                        Bayar
+                    </button>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4">Tambah Item</h3>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <!-- Additional settings hidden in a small card -->
+            <div
+                class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label for="item_temp_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item</label>
-                        <select wire:model.live="item_temp_id" id="item_temp_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                            <option value="">Pilih Item</option>
-                            @foreach($items as $item)
-                                <option value="{{ $item->item_id }}">{{ $item->nama_item }} ({{ ucfirst($item->tipe_item) }})</option>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">Customer</label>
+                        <select wire:model="customer_id"
+                            class="w-full text-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-md py-1">
+                            <option value="">Umum</option>
+                            @foreach ($customers as $customer)
+                                <option value="{{ $customer->customer_id }}">{{ $customer->nama }}</option>
                             @endforeach
                         </select>
-                        @error('item_temp_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
-
                     <div>
-                        <label for="qty_temp" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Qty</label>
-                        <input type="number" wire:model="qty_temp" id="qty_temp" min="1" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                        @error('qty_temp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div>
-                        <label for="harga_temp" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Harga Satuan</label>
-                        <input type="number" wire:model="harga_temp" id="harga_temp" min="0" step="0.01" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                        @error('harga_temp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div class="flex items-end">
-                        <button type="button" wire:click="addItem" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
-                            Tambah
-                        </button>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">Metode</label>
+                        <select wire:model="metode_pembayaran"
+                            class="w-full text-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-md py-1">
+                            <option value="tunai">Tunai</option>
+                            <option value="transfer">Transfer</option>
+                            <option value="kredit">Kredit</option>
+                        </select>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4">Daftar Item</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tipe</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Qty</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Harga</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Subtotal</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            @forelse($items_list as $index => $item)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['nama_item'] }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $item['tipe_item'] == 'barang' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
-                                            {{ ucfirst($item['tipe_item']) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['qty'] }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($item['harga_satuan'], 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <button type="button" wire:click="removeItem({{ $index }})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Hapus</button>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Belum ada item ditambahkan.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                        <tfoot class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <td colspan="4" class="px-6 py-4 text-right font-bold">Total:</td>
-                                <td colspan="2" class="px-6 py-4 font-bold">Rp {{ number_format($this->total, 0, ',', '.') }}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-                @error('items_list') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-            </div>
-
-            <div class="flex items-center justify-end mt-6">
-                <a href="{{ route('transaksis.index') }}" wire:navigate class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mr-4">
-                    Batal
-                </a>
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
-                    Simpan Transaksi
-                </button>
-            </div>
-        </form>
+    <!-- Pending Transaksi Table -->
+    <div
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="p-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
+            <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">Pending Transaksi
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-100 dark:bg-gray-800">
+                    <tr>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">
+                            No.</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Nama</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Items</th>
+                        <th
+                            class="px-6 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Action</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <template x-for="(trans, index) in pendingList" :key="trans.id">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="index + 1"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100" x-text="trans.name"></td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                <div class="flex flex-wrap gap-1">
+                                    <template x-for="item in trans.items">
+                                        <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-[10px]" x-text="item.qty + 'x ' + item.nama_item"></span>
+                                    </template>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                <button type="button" @click="restorePending(index)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">Restore</button>
+                                <button type="button" @click="removePending(index)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Hapus</button>
+                            </td>
+                        </tr>
+                    </template>
+                    <tr x-show="pendingList.length === 0">
+                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500 italic">Tidak ada transaksi tertunda</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+

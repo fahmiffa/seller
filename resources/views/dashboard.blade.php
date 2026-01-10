@@ -86,6 +86,33 @@
                 </div>
             </div>
 
+            <!-- Quick Access Cards -->
+            @if(auth()->user()->role == 0)
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
+                <!-- User Management -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
+                                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-5">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">User Management</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Kelola pengguna sistem</p>
+                                </div>
+                            </div>
+                            <a href="{{ route('users.index') }}" wire:navigate class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
+                                Kelola
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <!-- Charts -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <!-- Grafik Penjualan & Pembelian -->

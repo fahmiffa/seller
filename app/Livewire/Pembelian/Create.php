@@ -109,8 +109,8 @@ class Create extends Component
     public function render()
     {
         return view('livewire.pembelian.create', [
-            'suppliers' => Supplier::all(),
-            'items' => Item::where('tipe_item', 'barang')->get(), // Only goods can be purchased
+            'suppliers' => Supplier::where('user_id', Auth::id())->get(),
+            'items' => Item::where('user_id', Auth::id())->where('tipe_item', 'barang')->get(), // Only goods can be purchased
         ]);
     }
 }

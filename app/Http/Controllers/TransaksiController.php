@@ -11,7 +11,7 @@ class TransaksiController extends Controller
      */
     public function index()
     {
-        $transaksis = \App\Models\Transaksi::with(['customer', 'user'])->latest()->paginate(10);
+        $transaksis = \App\Models\Transaksi::where('user_id', auth()->id())->with(['customer', 'user'])->latest()->paginate(10);
         return view('transaksis.index', compact('transaksis'));
     }
 
@@ -36,6 +36,11 @@ class TransaksiController extends Controller
      */
     public function show(\App\Models\Transaksi $transaksi)
     {
+        // Check if transaksi belongs to current user
+        if ($transaksi->user_id != auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk melihat transaksi ini.');
+        }
+
         $transaksi->load(['customer', 'user', 'details.item']);
         return view('transaksis.show', compact('transaksi'));
     }
@@ -61,6 +66,11 @@ class TransaksiController extends Controller
      */
     public function destroy(\App\Models\Transaksi $transaksi)
     {
+        // Check if transaksi belongs to current user
+        if ($transaksi->user_id != auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus transaksi ini.');
+        }
+
         $transaksi->delete();
         return redirect()->route('transaksis.index')->with('success', 'Transaksi berhasil dihapus.');
     }

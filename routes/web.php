@@ -8,6 +8,7 @@ Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'inde
     ->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::resource('users', \App\Http\Controllers\UserController::class);
     Route::resource('customers', \App\Http\Controllers\CustomerController::class);
     Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
     Route::resource('satuans', \App\Http\Controllers\SatuanController::class);

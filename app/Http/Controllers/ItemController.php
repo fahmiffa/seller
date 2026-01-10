@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -12,7 +13,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $items = Item::with(['kategori', 'satuan', 'supplier'])->latest()->paginate(10);
+        $items = Item::where('user_id', auth()->id())->with(['kategori', 'satuan', 'supplier'])->latest()->paginate(10);
         return view('items.index', compact('items'));
     }
 
@@ -21,9 +22,9 @@ class ItemController extends Controller
      */
     public function create()
     {
-        $kategoris = \App\Models\Kategori::all();
-        $satuans = \App\Models\Satuan::all();
-        $suppliers = \App\Models\Supplier::all();
+        $kategoris = \App\Models\Kategori::where('user_id', auth()->id())->get();
+        $satuans = \App\Models\Satuan::where('user_id', auth()->id())->get();
+        $suppliers = \App\Models\Supplier::where('user_id', auth()->id())->get();
         return view('items.create', compact('kategoris', 'satuans', 'suppliers'));
     }
 
@@ -41,7 +42,13 @@ class ItemController extends Controller
             'harga_beli' => 'nullable|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'nullable|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('items', 'public');
+            $validated['image'] = $path;
+        }
 
         if ($validated['tipe_item'] === 'jasa') {
             $validated['harga_beli'] = null;
@@ -49,6 +56,7 @@ class ItemController extends Controller
             $validated['supplier_id'] = null;
         }
 
+        $validated['user_id'] = auth()->id();
         Item::create($validated);
 
         return redirect()->route('items.index')->with('success', 'Item berhasil ditambahkan.');
@@ -59,6 +67,11 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
+        // Check if item belongs to current user
+        if ($item->user_id != auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk melihat item ini.');
+        }
+
         return view('items.show', compact('item'));
     }
 
@@ -67,9 +80,14 @@ class ItemController extends Controller
      */
     public function edit(Item $item)
     {
-        $kategoris = \App\Models\Kategori::all();
-        $satuans = \App\Models\Satuan::all();
-        $suppliers = \App\Models\Supplier::all();
+        // Check if item belongs to current user
+        if ($item->user_id != auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit item ini.');
+        }
+
+        $kategoris = \App\Models\Kategori::where('user_id', auth()->id())->get();
+        $satuans = \App\Models\Satuan::where('user_id', auth()->id())->get();
+        $suppliers = \App\Models\Supplier::where('user_id', auth()->id())->get();
         return view('items.edit', compact('item', 'kategoris', 'satuans', 'suppliers'));
     }
 
@@ -78,6 +96,11 @@ class ItemController extends Controller
      */
     public function update(Request $request, Item $item)
     {
+        // Check if item belongs to current user
+        if ($item->user_id != auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit item ini.');
+        }
+
         $validated = $request->validate([
             'kategori_id' => 'required|exists:kategoris,kategori_id',
             'satuan_id' => 'required|exists:satuans,satuan_id',
@@ -87,7 +110,16 @@ class ItemController extends Controller
             'harga_beli' => 'nullable|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'nullable|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+            if ($item->image) {
+                Storage::disk('public')->delete($item->image);
+            }
+            $path = $request->file('image')->store('items', 'public');
+            $validated['image'] = $path;
+        }
 
         if ($validated['tipe_item'] === 'jasa') {
             $validated['harga_beli'] = null;
@@ -105,6 +137,14 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
+        // Check if item belongs to current user
+        if ($item->user_id != auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus item ini.');
+        }
+
+        if ($item->image) {
+            Storage::disk('public')->delete($item->image);
+        }
         $item->delete();
 
         return redirect()->route('items.index')->with('success', 'Item berhasil dihapus.');
