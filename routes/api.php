@@ -75,6 +75,7 @@ Route::middleware('auth:api')
             Route::get('stok',      [LaporanController::class, 'stok'])->name('stok');
             Route::get('penjualan', [LaporanController::class, 'penjualan'])->name('penjualan');
             Route::get('pembelian', [LaporanController::class, 'pembelian'])->name('pembelian');
+            Route::get('laba-rugi', [LaporanController::class, 'labaRugi'])->name('laba-rugi');
             Route::get('ringkasan', [LaporanController::class, 'ringkasan'])->name('ringkasan');
         });
     });

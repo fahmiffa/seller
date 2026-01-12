@@ -38,7 +38,7 @@ class LaporanController extends Controller
         $endDate = $request->input('end_date', date('Y-m-d')); // Default hari ini
 
         $penjualan = Transaksi::whereBetween('tanggal_transaksi', [$startDate, $endDate])
-            ->with(['customer:customer_id,nama', 'user:id,name'])
+            ->with(['customer:customer_id,nama', 'user:id,name', 'details.item'])
             ->orderBy('tanggal_transaksi', 'desc')
             ->get();
 
@@ -62,7 +62,7 @@ class LaporanController extends Controller
         $endDate = $request->input('end_date', date('Y-m-d'));
 
         $pembelian = Pembelian::whereBetween('tanggal_pembelian', [$startDate, $endDate])
-            ->with(['supplier:supplier_id,nama_supplier', 'user:id,name'])
+            ->with(['supplier:supplier_id,nama_supplier', 'user:id,name', 'details.item'])
             ->orderBy('tanggal_pembelian', 'desc')
             ->get();
 
@@ -138,6 +138,49 @@ class LaporanController extends Controller
                 'stok_menipis' => $stokMenipis,
                 'chart_history' => $chartHistory,
                 'top_stock' => $topStock
+            ]
+        ]);
+    }
+    /**
+     * Laporan Laba Rugi per Periode
+     */
+    public function labaRugi(Request $request)
+    {
+        $startDate = $request->input('start_date', date('Y-m-01'));
+        $endDate = $request->input('end_date', date('Y-m-d'));
+
+        // Total Penjualan
+        $penjualan = Transaksi::whereBetween('tanggal_transaksi', [$startDate, $endDate])
+            ->sum('total_harga');
+
+        // Total Pembelian
+        $pembelian = Pembelian::whereBetween('tanggal_pembelian', [$startDate, $endDate])
+            ->sum('total_pembelian');
+
+        // HPP (Harga Pokok Penjualan)
+        $detailHpp = DB::table('detail_transaksis')
+            ->join('transaksis', 'detail_transaksis.transaksi_id', '=', 'transaksis.transaksi_id')
+            ->join('items', 'detail_transaksis.item_id', '=', 'items.item_id')
+            ->whereBetween('transaksis.tanggal_transaksi', [$startDate, $endDate])
+            ->selectRaw('SUM(detail_transaksis.qty * COALESCE(items.harga_beli, 0)) as total_hpp')
+            ->first();
+
+        $hpp = $detailHpp->total_hpp ?? 0;
+        $labaKotor = $penjualan - $hpp;
+        
+        // Di sini bisa ditambahkan biaya operasional jika ada di database
+        $labaBersih = $labaKotor;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Laporan Laba Rugi',
+            'periode' => "$startDate - $endDate",
+            'data' => [
+                'total_penjualan' => (float) $penjualan,
+                'total_pembelian' => (float) $pembelian,
+                'total_hpp' => (float) $hpp,
+                'laba_kotor' => (float) $labaKotor,
+                'laba_bersih' => (float) $labaBersih
             ]
         ]);
     }
