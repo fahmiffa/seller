@@ -17,6 +17,7 @@ class LaporanController extends Controller
     public function stok()
     {
         $stok = Item::select('item_id', 'nama_item', 'kategori_id', 'stok', 'harga_beli', 'harga_jual')
+            ->where('user_id', auth()->id())
             ->where('tipe_item', 'barang') // Hanya barang yang punya stok
             ->with('kategori:kategori_id,nama_kategori')
             ->orderBy('stok', 'asc')
@@ -37,8 +38,9 @@ class LaporanController extends Controller
         $startDate = $request->input('start_date', date('Y-m-01')); // Default awal bulan ini
         $endDate = $request->input('end_date', date('Y-m-d')); // Default hari ini
 
-        $penjualan = Transaksi::whereBetween('tanggal_transaksi', [$startDate, $endDate])
-            ->with(['customer:customer_id,nama', 'user:id,name', 'details.item'])
+        $penjualan = Transaksi::where('user_id', auth()->id())
+            ->whereBetween('tanggal_transaksi', [$startDate, $endDate])
+            ->with(['customer', 'user', 'details.item'])
             ->orderBy('tanggal_transaksi', 'desc')
             ->get();
 
@@ -61,8 +63,9 @@ class LaporanController extends Controller
         $startDate = $request->input('start_date', date('Y-m-01'));
         $endDate = $request->input('end_date', date('Y-m-d'));
 
-        $pembelian = Pembelian::whereBetween('tanggal_pembelian', [$startDate, $endDate])
-            ->with(['supplier:supplier_id,nama_supplier', 'user:id,name', 'details.item'])
+        $pembelian = Pembelian::where('user_id', auth()->id())
+            ->whereBetween('tanggal_pembelian', [$startDate, $endDate])
+            ->with(['supplier', 'user', 'details.item'])
             ->orderBy('tanggal_pembelian', 'desc')
             ->get();
 
@@ -86,14 +89,15 @@ class LaporanController extends Controller
         $endDate = $request->input('end_date', date('Y-m-d'));
 
         // Total Penjualan
-        $totalPenjualan = Transaksi::whereBetween('tanggal_transaksi', [$startDate, $endDate])->sum('total_harga');
+        $totalPenjualan = Transaksi::where('user_id', auth()->id())->whereBetween('tanggal_transaksi', [$startDate, $endDate])->sum('total_harga');
 
         // Total Pembelian
-        $totalPembelian = Pembelian::whereBetween('tanggal_pembelian', [$startDate, $endDate])->sum('total_pembelian');
+        $totalPembelian = Pembelian::where('user_id', auth()->id())->whereBetween('tanggal_pembelian', [$startDate, $endDate])->sum('total_pembelian');
         
         $penjualanDetails = DB::table('detail_transaksis')
             ->join('transaksis', 'detail_transaksis.transaksi_id', '=', 'transaksis.transaksi_id')
             ->join('items', 'detail_transaksis.item_id', '=', 'items.item_id')
+            ->where('transaksis.user_id', auth()->id())
             ->whereBetween('transaksis.tanggal_transaksi', [$startDate, $endDate])
             ->selectRaw('SUM((detail_transaksis.qty * detail_transaksis.harga_satuan) - (detail_transaksis.qty * items.harga_beli)) as profit')
             ->first();
@@ -101,7 +105,7 @@ class LaporanController extends Controller
         $labaKotor = $penjualanDetails->profit ?? 0;
 
         // Stok Menipis (misal stok < 10)
-        $stokMenipis = Item::where('stok', '<', 10)->where('tipe_item', 'barang')->count();
+        $stokMenipis = Item::where('user_id', auth()->id())->where('stok', '<', 10)->where('tipe_item', 'barang')->count();
 
         // Data Chart 7 Hari Terakhir
         $chartHistory = [];
@@ -109,8 +113,8 @@ class LaporanController extends Controller
             $date = date('Y-m-d', strtotime("-$i days"));
             $label = date('d M', strtotime($date));
             
-            $jual = Transaksi::whereDate('tanggal_transaksi', $date)->sum('total_harga');
-            $beli = Pembelian::whereDate('tanggal_pembelian', $date)->sum('total_pembelian');
+            $jual = Transaksi::where('user_id', auth()->id())->whereDate('tanggal_transaksi', $date)->sum('total_harga');
+            $beli = Pembelian::where('user_id', auth()->id())->whereDate('tanggal_pembelian', $date)->sum('total_pembelian');
             
             $chartHistory[] = [
                 'tanggal' => $date,
@@ -121,7 +125,7 @@ class LaporanController extends Controller
         }
 
         // Top 10 Stok Barang
-        $topStock = Item::where('tipe_item', 'barang')
+        $topStock = Item::where('user_id', auth()->id())->where('tipe_item', 'barang')
             ->orderBy('stok', 'desc')
             ->limit(10)
             ->get(['nama_item', 'stok']);
@@ -134,7 +138,7 @@ class LaporanController extends Controller
                 'total_penjualan' => (float) $totalPenjualan,
                 'total_pembelian' => (float) $totalPembelian,
                 'laba_kotor_estimasi' => (float) $labaKotor,
-                'jumlah_transaksi' => Transaksi::whereBetween('tanggal_transaksi', [$startDate, $endDate])->count(),
+                'jumlah_transaksi' => Transaksi::where('user_id', auth()->id())->whereBetween('tanggal_transaksi', [$startDate, $endDate])->count(),
                 'stok_menipis' => $stokMenipis,
                 'chart_history' => $chartHistory,
                 'top_stock' => $topStock
@@ -150,17 +154,20 @@ class LaporanController extends Controller
         $endDate = $request->input('end_date', date('Y-m-d'));
 
         // Total Penjualan
-        $penjualan = Transaksi::whereBetween('tanggal_transaksi', [$startDate, $endDate])
+        $penjualan = Transaksi::where('user_id', auth()->id())
+            ->whereBetween('tanggal_transaksi', [$startDate, $endDate])
             ->sum('total_harga');
 
         // Total Pembelian
-        $pembelian = Pembelian::whereBetween('tanggal_pembelian', [$startDate, $endDate])
+        $pembelian = Pembelian::where('user_id', auth()->id())
+            ->whereBetween('tanggal_pembelian', [$startDate, $endDate])
             ->sum('total_pembelian');
 
         // HPP (Harga Pokok Penjualan)
         $detailHpp = DB::table('detail_transaksis')
             ->join('transaksis', 'detail_transaksis.transaksi_id', '=', 'transaksis.transaksi_id')
             ->join('items', 'detail_transaksis.item_id', '=', 'items.item_id')
+            ->where('transaksis.user_id', auth()->id())
             ->whereBetween('transaksis.tanggal_transaksi', [$startDate, $endDate])
             ->selectRaw('SUM(detail_transaksis.qty * COALESCE(items.harga_beli, 0)) as total_hpp')
             ->first();
