@@ -11,7 +11,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <form action="{{ route('items.store') }}" method="POST" id="item-form" enctype="multipart/form-data">
                         @csrf
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="mb-4">
                                 <label for="tipe_item" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipe Item</label>
@@ -20,7 +20,7 @@
                                     <option value="jasa" {{ old('tipe_item') == 'jasa' ? 'selected' : '' }}>Jasa</option>
                                 </select>
                                 @error('tipe_item')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -28,33 +28,21 @@
                                 <label for="nama_item" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Item</label>
                                 <input type="text" name="nama_item" id="nama_item" value="{{ old('nama_item') }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
                                 @error('nama_item')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
-                            <div class="mb-4">
-                                <label for="kategori_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Kategori</label>
-                                <select name="kategori_id" id="kategori_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
-                                    <option value="">Pilih Kategori</option>
-                                    @foreach($kategoris as $kategori)
-                                        <option value="{{ $kategori->kategori_id }}" {{ old('kategori_id') == $kategori->kategori_id ? 'selected' : '' }}>{{ $kategori->nama_kategori }} ({{ ucfirst($kategori->tipe) }})</option>
-                                    @endforeach
-                                </select>
-                                @error('kategori_id')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
 
                             <div class="mb-4">
                                 <label for="satuan_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Satuan</label>
                                 <select name="satuan_id" id="satuan_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
                                     <option value="">Pilih Satuan</option>
                                     @foreach($satuans as $satuan)
-                                        <option value="{{ $satuan->satuan_id }}" {{ old('satuan_id') == $satuan->satuan_id ? 'selected' : '' }}>{{ $satuan->nama_satuan }}</option>
+                                    <option value="{{ $satuan->satuan_id }}" {{ old('satuan_id') == $satuan->satuan_id ? 'selected' : '' }}>{{ $satuan->nama_satuan }}</option>
                                     @endforeach
                                 </select>
                                 @error('satuan_id')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -63,11 +51,11 @@
                                 <select name="supplier_id" id="supplier_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                                     <option value="">Pilih Supplier</option>
                                     @foreach($suppliers as $supplier)
-                                        <option value="{{ $supplier->supplier_id }}" {{ old('supplier_id') == $supplier->supplier_id ? 'selected' : '' }}>{{ $supplier->nama_supplier }}</option>
+                                    <option value="{{ $supplier->supplier_id }}" {{ old('supplier_id') == $supplier->supplier_id ? 'selected' : '' }}>{{ $supplier->nama_supplier }}</option>
                                     @endforeach
                                 </select>
                                 @error('supplier_id')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -75,7 +63,7 @@
                                 <label for="harga_beli" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Harga Beli</label>
                                 <input type="number" name="harga_beli" id="harga_beli" value="{{ old('harga_beli') }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                                 @error('harga_beli')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -83,7 +71,7 @@
                                 <label for="harga_jual" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Harga Jual</label>
                                 <input type="number" name="harga_jual" id="harga_jual" value="{{ old('harga_jual') }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
                                 @error('harga_jual')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -91,7 +79,7 @@
                                 <label for="stok" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Stok</label>
                                 <input type="number" name="stok" id="stok" value="{{ old('stok') }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                                 @error('stok')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -102,7 +90,7 @@
                                     <img id="image-preview" src="#" alt="Preview Gambar" class="hidden h-32 w-auto rounded shadow-sm">
                                 </div>
                                 @error('image')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>

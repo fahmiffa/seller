@@ -16,10 +16,9 @@ class LaporanController extends Controller
      */
     public function stok()
     {
-        $stok = Item::select('item_id', 'nama_item', 'kategori_id', 'stok', 'harga_beli', 'harga_jual')
+        $stok = Item::select('item_id', 'nama_item', 'stok', 'harga_beli', 'harga_jual')
             ->where('user_id', auth()->id())
             ->where('tipe_item', 'barang') // Hanya barang yang punya stok
-            ->with('kategori:kategori_id,nama_kategori')
             ->orderBy('stok', 'asc')
             ->get();
 
@@ -93,7 +92,7 @@ class LaporanController extends Controller
 
         // Total Pembelian
         $totalPembelian = Pembelian::where('user_id', auth()->id())->whereBetween('tanggal_pembelian', [$startDate, $endDate])->sum('total_pembelian');
-        
+
         $penjualanDetails = DB::table('detail_transaksis')
             ->join('transaksis', 'detail_transaksis.transaksi_id', '=', 'transaksis.transaksi_id')
             ->join('items', 'detail_transaksis.item_id', '=', 'items.item_id')
@@ -101,7 +100,7 @@ class LaporanController extends Controller
             ->whereBetween('transaksis.tanggal_transaksi', [$startDate, $endDate])
             ->selectRaw('SUM((detail_transaksis.qty * detail_transaksis.harga_satuan) - (detail_transaksis.qty * items.harga_beli)) as profit')
             ->first();
-            
+
         $labaKotor = $penjualanDetails->profit ?? 0;
 
         // Stok Menipis (misal stok < 10)
@@ -112,10 +111,10 @@ class LaporanController extends Controller
         for ($i = 6; $i >= 0; $i--) {
             $date = date('Y-m-d', strtotime("-$i days"));
             $label = date('d M', strtotime($date));
-            
+
             $jual = Transaksi::where('user_id', auth()->id())->whereDate('tanggal_transaksi', $date)->sum('total_harga');
             $beli = Pembelian::where('user_id', auth()->id())->whereDate('tanggal_pembelian', $date)->sum('total_pembelian');
-            
+
             $chartHistory[] = [
                 'tanggal' => $date,
                 'label' => $label,
@@ -174,7 +173,7 @@ class LaporanController extends Controller
 
         $hpp = $detailHpp->total_hpp ?? 0;
         $labaKotor = $penjualan - $hpp;
-        
+
         // Di sini bisa ditambahkan biaya operasional jika ada di database
         $labaBersih = $labaKotor;
 

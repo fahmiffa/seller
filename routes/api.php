@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\{
     CustomerController,
     SupplierController,
     SatuanController,
-    KategoriController,
     ItemController,
     PembelianController,
     TransaksiController,
@@ -18,6 +17,7 @@ use App\Http\Controllers\Api\{
 | AUTH (Public)
 |--------------------------------------------------------------------------
 */
+
 Route::prefix('auth')->group(function () {
     Route::post('login',    [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
@@ -52,7 +52,6 @@ Route::middleware('auth:api')
             'customers'  => CustomerController::class,
             'suppliers'  => SupplierController::class,
             'satuans'    => SatuanController::class,
-            'kategoris'  => KategoriController::class,
             'items'      => ItemController::class,
         ]);
 

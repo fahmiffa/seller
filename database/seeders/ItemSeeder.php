@@ -12,10 +12,6 @@ class ItemSeeder extends Seeder
      */
     public function run(): void
     {
-        // Ensure at least 5 categories
-        if (\App\Models\Kategori::count() < 5) {
-            \App\Models\Kategori::factory()->count(5)->create();
-        }
 
         // Ensure at least 5 units
         if (\App\Models\Satuan::count() < 5) {

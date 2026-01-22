@@ -12,11 +12,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('customers', \App\Http\Controllers\CustomerController::class);
     Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
     Route::resource('satuans', \App\Http\Controllers\SatuanController::class);
-    Route::resource('kategoris', \App\Http\Controllers\KategoriController::class);
     Route::resource('items', \App\Http\Controllers\ItemController::class);
     Route::resource('pembelians', \App\Http\Controllers\PembelianController::class);
     Route::resource('transaksis', \App\Http\Controllers\TransaksiController::class);
-    
+
     // Laporan Routes
     Route::get('/laporans', [\App\Http\Controllers\LaporanController::class, 'index'])->name('laporans.index');
     Route::get('/laporans/penjualan', [\App\Http\Controllers\LaporanController::class, 'penjualan'])->name('laporans.penjualan');
@@ -29,4 +28,4 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

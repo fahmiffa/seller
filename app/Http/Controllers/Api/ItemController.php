@@ -15,17 +15,13 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Item::where('user_id', auth()->id())->with(['kategori', 'satuan', 'supplier']);
+        $query = Item::where('user_id', auth()->id())->with(['satuan', 'supplier']);
 
         // Search by name
         if ($request->has('nama_item')) {
             $query->where('nama_item', 'like', '%' . $request->nama_item . '%');
         }
 
-        // Filter by category
-        if ($request->has('kategori_id')) {
-            $query->where('kategori_id', $request->kategori_id);
-        }
 
         $items = $query->latest()->get();
 
@@ -50,7 +46,6 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'kategori_id' => 'required|exists:kategoris,kategori_id',
             'satuan_id' => 'required|exists:satuans,satuan_id',
             'supplier_id' => 'nullable|exists:suppliers,supplier_id',
             'nama_item' => 'required|string|max:255',
@@ -94,8 +89,8 @@ class ItemController extends Controller
         // Check if ID is likely a barcode (numeric and longer than typical ID) or just search by ID first then barcode
         // Assuming item_id is integer. If barcode is stored in a column, use that. 
         // Since no barcode column in fillable, assuming standard ID lookup.
-        
-        $item = Item::where('user_id', auth()->id())->with(['kategori', 'satuan', 'supplier'])->find($id);
+
+        $item = Item::where('user_id', auth()->id())->with(['satuan', 'supplier'])->find($id);
 
         if (!$item) {
             return response()->json([
@@ -130,7 +125,6 @@ class ItemController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'kategori_id' => 'required|exists:kategoris,kategori_id',
             'satuan_id' => 'required|exists:satuans,satuan_id',
             'supplier_id' => 'nullable|exists:suppliers,supplier_id',
             'nama_item' => 'required|string|max:255',

@@ -13,7 +13,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $items = Item::where('user_id', auth()->id())->with(['kategori', 'satuan', 'supplier'])->latest()->paginate(10);
+        $items = Item::where('user_id', auth()->id())->with(['satuan', 'supplier'])->latest()->paginate(10);
         return view('items.index', compact('items'));
     }
 
@@ -22,10 +22,9 @@ class ItemController extends Controller
      */
     public function create()
     {
-        $kategoris = \App\Models\Kategori::where('user_id', auth()->id())->get();
         $satuans = \App\Models\Satuan::where('user_id', auth()->id())->get();
         $suppliers = \App\Models\Supplier::where('user_id', auth()->id())->get();
-        return view('items.create', compact('kategoris', 'satuans', 'suppliers'));
+        return view('items.create', compact('satuans', 'suppliers'));
     }
 
     /**
@@ -34,7 +33,6 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kategori_id' => 'required|exists:kategoris,kategori_id',
             'satuan_id' => 'required|exists:satuans,satuan_id',
             'supplier_id' => 'nullable|exists:suppliers,supplier_id',
             'nama_item' => 'required|string|max:255',
@@ -85,10 +83,9 @@ class ItemController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk mengedit item ini.');
         }
 
-        $kategoris = \App\Models\Kategori::where('user_id', auth()->id())->get();
         $satuans = \App\Models\Satuan::where('user_id', auth()->id())->get();
         $suppliers = \App\Models\Supplier::where('user_id', auth()->id())->get();
-        return view('items.edit', compact('item', 'kategoris', 'satuans', 'suppliers'));
+        return view('items.edit', compact('item', 'satuans', 'suppliers'));
     }
 
     /**
@@ -102,7 +99,6 @@ class ItemController extends Controller
         }
 
         $validated = $request->validate([
-            'kategori_id' => 'required|exists:kategoris,kategori_id',
             'satuan_id' => 'required|exists:satuans,satuan_id',
             'supplier_id' => 'nullable|exists:suppliers,supplier_id',
             'nama_item' => 'required|string|max:255',

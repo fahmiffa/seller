@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,6 @@ class Item extends Model
 
     protected $fillable = [
         'user_id',
-        'kategori_id',
         'satuan_id',
         'supplier_id',
         'nama_item',
@@ -27,10 +27,6 @@ class Item extends Model
         'stok',
     ];
 
-    public function kategori()
-    {
-        return $this->belongsTo(Kategori::class, 'kategori_id');
-    }
 
     public function satuan()
     {

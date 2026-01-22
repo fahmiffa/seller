@@ -21,7 +21,6 @@ class ItemFactory extends Factory
         $harga_jual = $tipe === 'barang' ? $harga_beli + $this->faker->numberBetween(1000, 20000) : $this->faker->numberBetween(5000, 100000);
 
         return [
-            'kategori_id' => \App\Models\Kategori::inRandomOrder()->first()->kategori_id,
             'satuan_id' => \App\Models\Satuan::inRandomOrder()->first()->satuan_id,
             'supplier_id' => null,
             'nama_item' => $this->faker->words(3, true),
