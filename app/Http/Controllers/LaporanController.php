@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\DetailTransaksi;
@@ -52,7 +53,7 @@ class LaporanController extends Controller
 
     public function stok(Request $request)
     {
-        $items = Item::with(['kategori', 'satuan'])
+        $items = Item::with(['satuan'])
             ->where('user_id', auth()->user()->id)
             ->where('tipe_item', 'barang')
             ->orderBy('nama_item')
