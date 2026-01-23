@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::view('privacy-policy', 'privacy-policy')->name('privacy-policy');
+
 
 Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
