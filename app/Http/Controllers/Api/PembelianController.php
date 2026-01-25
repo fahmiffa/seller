@@ -54,6 +54,14 @@ class PembelianController extends Controller
         try {
             DB::beginTransaction();
 
+            $user = auth()->user();
+            if ($user->saldo < 50000) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Saldo anda di bawah Rp 50.000, tidak dapat melakukan transaksi pembelian.'
+                ], 400);
+            }
+
             // Calculate total
             $total_pembelian = 0;
             foreach ($request->items as $item) {
@@ -92,7 +100,6 @@ class PembelianController extends Controller
                 'message' => 'Pembelian berhasil disimpan',
                 'data' => $pembelian->load('details.item')
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -177,7 +184,6 @@ class PembelianController extends Controller
                 'success' => true,
                 'message' => 'Pembelian berhasil dihapus dan stok dikembalikan'
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

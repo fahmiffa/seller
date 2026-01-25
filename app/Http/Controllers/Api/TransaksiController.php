@@ -44,7 +44,7 @@ class TransaksiController extends Controller
             // Usually FE sends it to lock price, but server should ideally validate or fetch.
             // For this POS, let's allow FE to send it (e.g. for discounts) but default to DB if missing? 
             // Let's require it to be safe, or fetch if not present. I'll require it for now.
-            'items.*.harga_satuan' => 'required|numeric|min:0', 
+            'items.*.harga_satuan' => 'required|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -57,6 +57,14 @@ class TransaksiController extends Controller
 
         try {
             DB::beginTransaction();
+
+            $user = auth()->user();
+            if ($user->saldo < 50000) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Saldo anda di bawah Rp 50.000, tidak dapat melakukan transaksi penjualan.'
+                ], 400);
+            }
 
             // Calculate total
             $total_harga = 0;
@@ -77,14 +85,14 @@ class TransaksiController extends Controller
             foreach ($request->items as $itemData) {
                 // Check stock first
                 $item = Item::lockForUpdate()->find($itemData['item_id']);
-                
+
                 // If item type is 'barang', check stock. 'jasa' unlimited.
                 if ($item->tipe_item === 'barang') {
-                     if ($item->stok < $itemData['qty']) {
-                         throw new \Exception("Stok barang {$item->nama_item} tidak mencukupi. Sisa: {$item->stok}");
-                     }
-                     $item->stok -= $itemData['qty'];
-                     $item->save();
+                    if ($item->stok < $itemData['qty']) {
+                        throw new \Exception("Stok barang {$item->nama_item} tidak mencukupi. Sisa: {$item->stok}");
+                    }
+                    $item->stok -= $itemData['qty'];
+                    $item->save();
                 }
 
                 DetailTransaksi::create([
@@ -103,7 +111,6 @@ class TransaksiController extends Controller
                 'message' => 'Transaksi berhasil disimpan',
                 'data' => $transaksi->load('details.item')
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -171,7 +178,6 @@ class TransaksiController extends Controller
                 'success' => true,
                 'message' => 'Transaksi berhasil dibatalkan dan stok dikembalikan'
             ], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

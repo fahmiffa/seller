@@ -77,4 +77,11 @@ Route::middleware('auth:api')
             Route::get('laba-rugi', [LaporanController::class, 'labaRugi'])->name('laba-rugi');
             Route::get('ringkasan', [LaporanController::class, 'ringkasan'])->name('ringkasan');
         });
+
+        /*
+        |--------------------------
+        | HISTORY
+        |--------------------------
+        */
+        Route::get('histories', [\App\Http\Controllers\Api\HistoryController::class, 'index']);
     });
