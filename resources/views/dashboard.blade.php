@@ -84,11 +84,30 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Saldo Saat Ini -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+                                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-5 w-0 flex-1">
+                                <dl>
+                                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Saldo Saat Ini</dt>
+                                    <dd class="text-lg font-semibold text-gray-900 dark:text-gray-100">Rp {{ number_format(auth()->user()->saldo ?? 0, 0, ',', '.') }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Quick Access Cards -->
             @if(auth()->user()->role == 0)
-            <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <!-- User Management -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
@@ -105,6 +124,28 @@
                                 </div>
                             </div>
                             <a href="{{ route('users.index') }}" wire:navigate class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
+                                Kelola
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saldo Management -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+                                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-5">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Saldo Management</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Kelola riwayat & top up saldo</p>
+                                </div>
+                            </div>
+                            <a href="{{ route('saldos.index') }}" wire:navigate class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
                                 Kelola
                             </a>
                         </div>
@@ -157,16 +198,22 @@
                     salesPurchaseChart = new Chart(salesPurchaseCtx.getContext('2d'), {
                         type: 'line',
                         data: {
-                            labels: {!! json_encode($dates) !!},
+                            labels: {
+                                !!json_encode($dates) !!
+                            },
                             datasets: [{
                                 label: 'Penjualan',
-                                data: {!! json_encode($penjualanData) !!},
+                                data: {
+                                    !!json_encode($penjualanData) !!
+                                },
                                 borderColor: 'rgb(34, 197, 94)',
                                 backgroundColor: 'rgba(34, 197, 94, 0.1)',
                                 tension: 0.4
                             }, {
                                 label: 'Pembelian',
-                                data: {!! json_encode($pembelianData) !!},
+                                data: {
+                                    !!json_encode($pembelianData) !!
+                                },
                                 borderColor: 'rgb(59, 130, 246)',
                                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                                 tension: 0.4
@@ -199,10 +246,14 @@
                     stockChart = new Chart(stockCtx.getContext('2d'), {
                         type: 'bar',
                         data: {
-                            labels: {!! json_encode($itemNames) !!},
+                            labels: {
+                                !!json_encode($itemNames) !!
+                            },
                             datasets: [{
                                 label: 'Stok',
-                                data: {!! json_encode($itemStoks) !!},
+                                data: {
+                                    !!json_encode($itemStoks) !!
+                                },
                                 backgroundColor: 'rgba(234, 179, 8, 0.8)',
                                 borderColor: 'rgb(234, 179, 8)',
                                 borderWidth: 1

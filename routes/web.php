@@ -24,6 +24,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/laporans/pembelian', [\App\Http\Controllers\LaporanController::class, 'pembelian'])->name('laporans.pembelian');
     Route::get('/laporans/stok', [\App\Http\Controllers\LaporanController::class, 'stok'])->name('laporans.stok');
     Route::get('/laporans/laba-rugi', [\App\Http\Controllers\LaporanController::class, 'labaRugi'])->name('laporans.laba-rugi');
+
+    // Saldo Management Routes
+    Route::get('/saldos', [\App\Http\Controllers\SaldoController::class, 'index'])->name('saldos.index');
+    Route::get('/saldos/history', [\App\Http\Controllers\SaldoController::class, 'history'])->name('saldos.history');
+    Route::post('/saldos/topup/{user}', [\App\Http\Controllers\SaldoController::class, 'topup'])->name('saldos.topup');
 });
 
 Route::view('profile', 'profile')

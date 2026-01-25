@@ -48,6 +48,11 @@ $logout = function (Logout $logout) {
                     <x-nav-link :href="route('laporans.index')" :active="request()->routeIs('laporans.*')" wire:navigate>
                         {{ __('Laporan') }}
                     </x-nav-link>
+                    @if(auth()->user()->role == 0)
+                    <x-nav-link :href="route('saldos.index')" :active="request()->routeIs('saldos.*')" wire:navigate>
+                        {{ __('Saldo Management') }}
+                    </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -140,6 +145,11 @@ $logout = function (Logout $logout) {
             <x-responsive-nav-link :href="route('laporans.index')" :active="request()->routeIs('laporans.*')" wire:navigate>
                 {{ __('Laporan') }}
             </x-responsive-nav-link>
+            @if(auth()->user()->role == 0)
+            <x-responsive-nav-link :href="route('saldos.index')" :active="request()->routeIs('saldos.*')" wire:navigate>
+                {{ __('Saldo Management') }}
+            </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
