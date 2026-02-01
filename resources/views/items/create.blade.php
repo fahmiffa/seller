@@ -90,6 +90,14 @@
                             </div>
 
                             <div class="mb-4">
+                                <label for="expired_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Expired Date <span class="text-xs text-gray-500">(Opsional)</span></label>
+                                <input type="date" name="expired_at" id="expired_at" value="{{ old('expired_at') }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                @error('expired_at')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
                                 <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Gambar Produk</label>
                                 <input type="file" name="image" id="image" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" accept="image/*" onchange="previewImage(event)">
                                 <div class="mt-2">
