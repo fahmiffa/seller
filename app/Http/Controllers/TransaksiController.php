@@ -9,9 +9,15 @@ class TransaksiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $transaksis = \App\Models\Transaksi::where('user_id', auth()->id())->with(['customer', 'user'])->latest()->paginate(10);
+        $query = \App\Models\Transaksi::where('user_id', auth()->id())->with(['customer', 'user']);
+
+        if ($request->has('metode_pembayaran') && $request->metode_pembayaran != '') {
+            $query->where('metode_pembayaran', $request->metode_pembayaran);
+        }
+
+        $transaksis = $query->latest()->paginate(10);
         return view('transaksis.index', compact('transaksis'));
     }
 

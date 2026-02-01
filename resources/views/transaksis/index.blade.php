@@ -7,16 +7,27 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="mb-4 flex justify-end">
+            <div class="mb-4 flex justify-between items-center">
+                <form action="{{ route('transaksis.index') }}" method="GET" class="flex items-center">
+                    <label for="metode_pembayaran" class="mr-2 text-sm text-gray-700 dark:text-gray-300">Filter Metode:</label>
+                    <select name="metode_pembayaran" id="metode_pembayaran" onchange="this.form.submit()" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm text-sm">
+                        <option value="">Semua</option>
+                        <option value="tunai" {{ request('metode_pembayaran') == 'tunai' ? 'selected' : '' }}>Tunai</option>
+                        <option value="transfer" {{ request('metode_pembayaran') == 'transfer' ? 'selected' : '' }}>Transfer</option>
+                        <option value="qris" {{ request('metode_pembayaran') == 'qris' ? 'selected' : '' }}>QRIS</option>
+                        <option value="kredit" {{ request('metode_pembayaran') == 'kredit' ? 'selected' : '' }}>Kredit</option>
+                    </select>
+                </form>
+
                 <a href="{{ route('transaksis.create') }}" wire:navigate class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
                     Tambah Transaksi
                 </a>
             </div>
 
             @if(session('success'))
-                <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
-                    <p>{{ session('success') }}</p>
-                </div>
+            <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
+                <p>{{ session('success') }}</p>
+            </div>
             @endif
 
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -35,30 +46,30 @@
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @forelse($transaksis as $transaksi)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d/m/Y') }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $transaksi->customer ? $transaksi->customer->nama : 'Umum' }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $transaksi->user->name }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d/m/Y') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $transaksi->customer ? $transaksi->customer->nama : 'Umum' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $transaksi->user->name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                                 {{ $transaksi->metode_pembayaran == 'tunai' ? 'bg-green-100 text-green-800' : ($transaksi->metode_pembayaran == 'transfer' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
-                                                {{ ucfirst($transaksi->metode_pembayaran) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('transaksis.show', $transaksi) }}" wire:navigate class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">Detail</a>
-                                            <form action="{{ route('transaksis.destroy', $transaksi) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Hapus</button>
-                                            </form>
-                                        </td>
-                                    </tr>
+                                            {{ ucfirst($transaksi->metode_pembayaran) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a href="{{ route('transaksis.show', $transaksi) }}" wire:navigate class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">Detail</a>
+                                        <form action="{{ route('transaksis.destroy', $transaksi) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Hapus</button>
+                                        </form>
+                                    </td>
+                                </tr>
                                 @empty
-                                    <tr>
-                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada data transaksi.</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada data transaksi.</td>
+                                </tr>
                                 @endforelse
                             </tbody>
                         </table>

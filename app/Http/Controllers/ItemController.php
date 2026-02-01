@@ -49,6 +49,7 @@ class ItemController extends Controller
                 },
             ],
             'stok' => 'nullable|integer|min:0',
+            'expired_at' => 'nullable|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -124,6 +125,7 @@ class ItemController extends Controller
                 },
             ],
             'stok' => 'nullable|integer|min:0',
+            'expired_at' => 'nullable|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 

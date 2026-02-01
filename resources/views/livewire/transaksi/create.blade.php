@@ -268,6 +268,7 @@
                                 class="w-full text-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-md py-1">
                                 <option value="tunai">Tunai</option>
                                 <option value="transfer">Transfer</option>
+                                <option value="qris">Qris</option>
                                 <option value="kredit">Kredit</option>
                             </select>
                         </div>
