@@ -266,7 +266,7 @@
                             <label class="block text-xs font-semibold text-gray-500 mb-1">Metode</label>
                             <select wire:model="metode_pembayaran"
                                 class="w-full text-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-md py-1">
-                                <option value="tunai">Tunai</option>
+                                <option value="cash">Cash</option>
                                 <option value="transfer">Transfer</option>
                                 <option value="qris">Qris</option>
                                 <option value="kredit">Kredit</option>

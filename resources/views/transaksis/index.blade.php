@@ -12,7 +12,7 @@
                     <label for="metode_pembayaran" class="mr-2 text-sm text-gray-700 dark:text-gray-300">Filter Metode:</label>
                     <select name="metode_pembayaran" id="metode_pembayaran" onchange="this.form.submit()" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm text-sm">
                         <option value="">Semua</option>
-                        <option value="tunai" {{ request('metode_pembayaran') == 'tunai' ? 'selected' : '' }}>Tunai</option>
+                        <option value="cash" {{ request('metode_pembayaran') == 'cash' ? 'selected' : '' }}>Cash</option>
                         <option value="transfer" {{ request('metode_pembayaran') == 'transfer' ? 'selected' : '' }}>Transfer</option>
                         <option value="qris" {{ request('metode_pembayaran') == 'qris' ? 'selected' : '' }}>QRIS</option>
                         <option value="kredit" {{ request('metode_pembayaran') == 'kredit' ? 'selected' : '' }}>Kredit</option>
@@ -52,7 +52,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $transaksi->user->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                {{ $transaksi->metode_pembayaran == 'tunai' ? 'bg-green-100 text-green-800' : ($transaksi->metode_pembayaran == 'transfer' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                                {{ $transaksi->metode_pembayaran == 'cash' ? 'bg-green-100 text-green-800' : ($transaksi->metode_pembayaran == 'transfer' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
                                             {{ ucfirst($transaksi->metode_pembayaran) }}
                                         </span>
                                     </td>
