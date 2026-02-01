@@ -38,7 +38,16 @@ class ItemController extends Controller
             'nama_item' => 'required|string|max:255',
             'tipe_item' => 'required|in:barang,jasa',
             'harga_beli' => 'nullable|numeric|min:0',
-            'harga_jual' => 'required|numeric|min:0',
+            'harga_jual' => [
+                'required',
+                'numeric',
+                'min:0',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->tipe_item === 'barang' && $request->filled('harga_beli') && $value <= $request->harga_beli) {
+                        $fail('Harga jual harus lebih besar dari harga beli.');
+                    }
+                },
+            ],
             'stok' => 'nullable|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
@@ -104,7 +113,16 @@ class ItemController extends Controller
             'nama_item' => 'required|string|max:255',
             'tipe_item' => 'required|in:barang,jasa',
             'harga_beli' => 'nullable|numeric|min:0',
-            'harga_jual' => 'required|numeric|min:0',
+            'harga_jual' => [
+                'required',
+                'numeric',
+                'min:0',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->tipe_item === 'barang' && $request->filled('harga_beli') && $value <= $request->harga_beli) {
+                        $fail('Harga jual harus lebih besar dari harga beli.');
+                    }
+                },
+            ],
             'stok' => 'nullable|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);

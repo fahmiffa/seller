@@ -18,6 +18,11 @@ class Create extends Component
     public $items_list = [];
     public $search = '';
     public $showAll = false;
+    public $showSuccessModal = false;
+    public $last_transaction_id;
+    public $last_items = [];
+    public $last_total = 0;
+    public $last_customer_name = 'Umum';
 
     public function mount()
     {
@@ -27,7 +32,7 @@ class Create extends Component
     public function addToCart($itemId)
     {
         $item = Item::find($itemId);
-        
+
         // Find if already in list
         $existingPos = -1;
         foreach ($this->items_list as $index => $listItem) {
@@ -103,7 +108,8 @@ class Create extends Component
             'items_list' => 'required|array|min:1',
         ]);
 
-        DB::transaction(function () {
+        $transaksiId = null;
+        DB::transaction(function () use (&$transaksiId) {
             $transaksi = Transaksi::create([
                 'customer_id' => $this->customer_id,
                 'user_id' => Auth::id(),
@@ -111,6 +117,8 @@ class Create extends Component
                 'total_harga' => $this->total,
                 'metode_pembayaran' => $this->metode_pembayaran,
             ]);
+
+            $transaksiId = $transaksi->transaksi_id;
 
             foreach ($this->items_list as $item) {
                 DetailTransaksi::create([
@@ -128,8 +136,53 @@ class Create extends Component
             }
         });
 
+        // Store data for printing before potentially clearing or moving away
+        $this->last_items = $this->items_list;
+        $this->last_total = $this->total;
+        $this->last_transaction_id = $transaksiId;
+
+        if ($this->customer_id) {
+            $customer = Customer::find($this->customer_id);
+            $this->last_customer_name = $customer ? $customer->nama : 'Umum';
+        } else {
+            $this->last_customer_name = 'Umum';
+        }
+
+        $this->clearCart();
+        $this->showSuccessModal = true;
+
         session()->flash('success', 'Transaksi berhasil disimpan.');
-        return $this->redirect(route('transaksis.index'));
+    }
+
+    public function resetTransaction()
+    {
+        $this->showSuccessModal = false;
+        $this->customer_id = null;
+        $this->last_items = [];
+        $this->last_total = 0;
+        $this->last_transaction_id = null;
+    }
+
+    public function updatedItemsList($value, $name)
+    {
+        $parts = explode('.', $name);
+        if (count($parts) === 2 && $parts[1] === 'qty') {
+            $index = $parts[0];
+            $qty = $this->items_list[$index]['qty'];
+
+            if (!is_numeric($qty) || $qty < 1) {
+                $this->removeItem($index);
+                return;
+            }
+
+            $item = Item::find($this->items_list[$index]['item_id']);
+            if ($item && $item->tipe_item === 'barang' && $item->stok < $qty) {
+                $this->items_list[$index]['qty'] = $item->stok;
+                session()->flash('error', 'Stok terbatas!');
+            }
+
+            $this->items_list[$index]['subtotal'] = $this->items_list[$index]['qty'] * $this->items_list[$index]['harga_satuan'];
+        }
     }
 
     public function render()

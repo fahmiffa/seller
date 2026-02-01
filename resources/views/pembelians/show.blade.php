@@ -55,7 +55,6 @@
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium">{{ $detail->item->nama_item }}</div>
-                                            <div class="text-xs text-gray-500">{{ $detail->item->kategori->nama_kategori }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ $detail->qty }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($detail->harga_beli, 0, ',', '.') }}</td>

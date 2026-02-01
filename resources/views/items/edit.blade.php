@@ -62,15 +62,21 @@
 
                             <div class="mb-4" id="harga_beli_section">
                                 <label for="harga_beli" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Harga Beli</label>
-                                <input type="number" name="harga_beli" id="harga_beli" value="{{ old('harga_beli', $item->harga_beli) }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <input type="number" name="harga_beli" id="harga_beli" value="{{ old('harga_beli', $item->harga_beli) }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" oninput="calculateHargaJual()">
                                 @error('harga_beli')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
+                            <div class="mb-4" id="margin_section">
+                                <label for="margin_persen" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Margin Keuntungan (%) <span class="text-xs text-gray-500">(Opsional)</span></label>
+                                <input type="number" id="margin_persen" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" placeholder="Contoh: 20" oninput="calculateHargaJual()">
+                            </div>
+
                             <div class="mb-4">
                                 <label for="harga_jual" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Harga Jual</label>
-                                <input type="number" name="harga_jual" id="harga_jual" value="{{ old('harga_jual', $item->harga_jual) }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                                <input type="number" name="harga_jual" id="harga_jual" value="{{ old('harga_jual', $item->harga_jual) }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required oninput="validateHargaJual()">
+                                <p id="error-harga-jual" class="text-red-500 text-xs mt-1 hidden">Harga jual harus lebih besar dari harga beli.</p>
                                 @error('harga_jual')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
@@ -119,16 +125,50 @@
             const tipe = document.getElementById('tipe_item').value;
             const supplierSection = document.getElementById('supplier_section');
             const hargaBeliSection = document.getElementById('harga_beli_section');
+            const marginSection = document.getElementById('margin_section');
             const stokSection = document.getElementById('stok_section');
 
             if (tipe === 'jasa') {
                 if (supplierSection) supplierSection.classList.add('hidden');
                 if (hargaBeliSection) hargaBeliSection.classList.add('hidden');
+                if (marginSection) marginSection.classList.add('hidden');
                 if (stokSection) stokSection.classList.add('hidden');
             } else {
                 if (supplierSection) supplierSection.classList.remove('hidden');
                 if (hargaBeliSection) hargaBeliSection.classList.remove('hidden');
+                if (marginSection) marginSection.classList.remove('hidden');
                 if (stokSection) stokSection.classList.remove('hidden');
+            }
+            validateHargaJual();
+        }
+
+        function calculateHargaJual() {
+            const hargaBeli = parseFloat(document.getElementById('harga_beli').value) || 0;
+            const marginPersen = parseFloat(document.getElementById('margin_persen').value) || 0;
+            const hargaJualInput = document.getElementById('harga_jual');
+
+            if (marginPersen > 0 && hargaBeli > 0) {
+                const untung = (hargaBeli * marginPersen) / 100;
+                hargaJualInput.value = Math.round(hargaBeli + untung);
+            }
+            validateHargaJual();
+        }
+
+        function validateHargaJual() {
+            const tipe = document.getElementById('tipe_item').value;
+            const hargaBeli = parseFloat(document.getElementById('harga_beli').value) || 0;
+            const hargaJual = parseFloat(document.getElementById('harga_jual').value) || 0;
+            const errorElement = document.getElementById('error-harga-jual');
+            const submitBtn = document.querySelector('button[type="submit"]');
+
+            if (tipe === 'barang' && hargaBeli > 0 && hargaJual > 0 && hargaJual <= hargaBeli) {
+                errorElement.classList.remove('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                errorElement.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
 

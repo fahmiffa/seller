@@ -198,22 +198,16 @@
                     salesPurchaseChart = new Chart(salesPurchaseCtx.getContext('2d'), {
                         type: 'line',
                         data: {
-                            labels: {
-                                !!json_encode($dates) !!
-                            },
+                            labels: <?php echo json_encode($dates); ?>,
                             datasets: [{
                                 label: 'Penjualan',
-                                data: {
-                                    !!json_encode($penjualanData) !!
-                                },
+                                data: <?php echo json_encode($penjualanData); ?>,
                                 borderColor: 'rgb(34, 197, 94)',
                                 backgroundColor: 'rgba(34, 197, 94, 0.1)',
                                 tension: 0.4
                             }, {
                                 label: 'Pembelian',
-                                data: {
-                                    !!json_encode($pembelianData) !!
-                                },
+                                data: <?php echo json_encode($pembelianData); ?>,
                                 borderColor: 'rgb(59, 130, 246)',
                                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                                 tension: 0.4
@@ -246,14 +240,10 @@
                     stockChart = new Chart(stockCtx.getContext('2d'), {
                         type: 'bar',
                         data: {
-                            labels: {
-                                !!json_encode($itemNames) !!
-                            },
+                            labels: <?php echo json_encode($itemNames); ?>,
                             datasets: [{
                                 label: 'Stok',
-                                data: {
-                                    !!json_encode($itemStoks) !!
-                                },
+                                data: <?php echo json_encode($itemStoks); ?>,
                                 backgroundColor: 'rgba(234, 179, 8, 0.8)',
                                 borderColor: 'rgb(234, 179, 8)',
                                 borderWidth: 1
