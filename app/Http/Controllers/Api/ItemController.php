@@ -53,6 +53,7 @@ class ItemController extends Controller
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'nullable|integer|min:0',
+            'expired_at' => 'nullable|date',
             'image' => 'nullable|image|max:2048', // Max 2MB
         ]);
 
@@ -132,6 +133,7 @@ class ItemController extends Controller
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'nullable|integer|min:0',
+            'expired_at' => 'nullable|date',
             'image' => 'nullable|image|max:2048',
         ]);
 

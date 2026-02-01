@@ -25,6 +25,7 @@ class Item extends Model
         'harga_beli',
         'harga_jual',
         'stok',
+        'expired_at',
     ];
 
 
