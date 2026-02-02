@@ -7,8 +7,20 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="mb-4 flex justify-end">
-                <a href="{{ route('items.create') }}" wire:navigate class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
+            <div class="mb-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                <form action="{{ route('items.index') }}" method="GET" class="w-full md:w-1/2 flex gap-2">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama produk atau jasa..."
+                        class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <button type="submit" class="bg-gray-800 dark:bg-gray-200 dark:text-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 dark:hover:bg-gray-300 transition">
+                        Cari
+                    </button>
+                    @if($search)
+                    <a href="{{ route('items.index') }}" class="flex items-center text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        Reset
+                    </a>
+                    @endif
+                </form>
+                <a href="{{ route('items.create') }}" wire:navigate class="w-full md:w-auto text-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
                     Tambah Produk/Jasa
                 </a>
             </div>

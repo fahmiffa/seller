@@ -46,8 +46,18 @@
                 return;
             }
         }
+        
+        // Set paper size dynamically
+        const printSize = type === '58' ? '58mm auto' : 'A4 portrait';
+        document.documentElement.style.setProperty('--print-size', printSize);
+
         this.$nextTick(() => {
             window.print();
+        });
+    },
+    init() {
+        $wire.on('print-receipt', (event) => {
+            this.printReceipt(event.type, true);
         });
     }
 }" class="flex flex-col gap-6">
@@ -122,6 +132,13 @@
                             class="absolute top-2 right-2 bg-gray-50 dark:bg-gray-700 px-2 py-1 rounded text-xs font-bold text-gray-600 dark:text-gray-300">
                             {{ number_format($item->harga_jual, 0, ',', '.') }}
                         </div>
+
+                        @if($item->tipe_item === 'barang')
+                        <div
+                            class="absolute top-2 left-2 {{ $item->stok > 0 ? ($item->stok < 10 ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600') : 'bg-red-50 text-red-600' }} px-2 py-1 rounded text-[10px] font-bold">
+                            Stok: {{ $item->stok }}
+                        </div>
+                        @endif
 
                         <div
                             class="w-24 h-24 mb-4 flex items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -222,24 +239,6 @@
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             Pending
-                        </button>
-                        <button type="button" @click="printReceipt('58')" class="col-span-1 bg-gray-200 hover:bg-gray-300 text-gray-700 p-3 rounded-lg flex flex-col items-center justify-center transition text-[10px]"
-                            title="Print 58mm">
-                            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 00-2 2h2m2 4h10a2 2 0 002-2v-3a2 2 0 012-2H7a2 2 0 012 2v3a2 2 0 002 2zm0 0v-8a2 2 0 012-2h6a2 2 0 012 2v8">
-                                </path>
-                            </svg>
-                            58
-                        </button>
-                        <button type="button" @click="printReceipt('A4')" class="col-span-1 bg-gray-200 hover:bg-gray-300 text-gray-700 p-3 rounded-lg flex flex-col items-center justify-center transition text-[10px]"
-                            title="Print A4">
-                            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                </path>
-                            </svg>
-                            A4
                         </button>
                         <button type="button" wire:click="save"
                             class="col-span-1 bg-blue-500 hover:bg-blue-600 text-white font-bold p-3 rounded-lg flex items-center justify-center transition">

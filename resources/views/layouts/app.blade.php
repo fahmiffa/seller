@@ -29,29 +29,64 @@
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
+
+        :root {
+            --print-size: auto;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            @page {
+                size: var(--print-size);
+                margin: 0;
+            }
+
+            body {
+                background: white !important;
+                margin: 0;
+                padding: 0;
+            }
+        }
     </style>
 </head>
 
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-        <livewire:layout.navigation />
+        <div class="no-print">
+            <livewire:layout.navigation />
+        </div>
+        @if(auth()->check() && auth()->user()->saldo <= env('LIMIT'))
+            <div class="no-print bg-red-500 text-white text-center py-2 px-4 animate-pulse">
+            <span class="font-bold">Peringatan:</span> Saldo limit, tidak bisa melakukan transaksi pembelian dan penjualan.
+    </div>
+    @endif
 
-        <!-- Page Heading -->
-        @if (isset($header))
-        <header class="bg-white dark:bg-gray-800 shadow">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                {{ $header }}
-            </div>
-        </header>
-        @endif
+    <!-- Page Heading -->
+    @if (isset($header))
+    <header class="no-print bg-white dark:bg-gray-800 shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            {{ $header }}
+        </div>
+    </header>
+    @endif
 
-        <!-- Page Content -->
-        <main>
-            {{ $slot }}
-        </main>
+    <!-- Page Content -->
+    <main>
+        {{ $slot }}
+    </main>
     </div>
 
     @stack('scripts')
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('alert', (event) => {
+                alert(event.message || event[0].message);
+            });
+        });
+    </script>
 </body>
 
 </html>

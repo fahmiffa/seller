@@ -47,7 +47,7 @@ class Create extends Component
         } else {
             // Check stock for goods
             if ($item->tipe_item === 'barang' && $item->stok < 1) {
-                session()->flash('error', 'Stok tidak mencukupi!');
+                $this->dispatch('alert', message: 'Stok habis!');
                 return;
             }
 
@@ -66,7 +66,7 @@ class Create extends Component
     {
         $item = Item::find($this->items_list[$index]['item_id']);
         if ($item->tipe_item === 'barang' && $item->stok <= $this->items_list[$index]['qty']) {
-            session()->flash('error', 'Stok terbatas!');
+            $this->dispatch('alert', message: 'Stok tidak mencukupi!');
             return;
         }
 
@@ -102,6 +102,11 @@ class Create extends Component
 
     public function save()
     {
+        if (Auth::user()->saldo <= env('LIMIT')) {
+            $this->dispatch('alert', message: 'Saldo limit, tidak bisa melakukan transaksi!');
+            return;
+        }
+
         $this->validate([
             'tanggal_transaksi' => 'required|date',
             'metode_pembayaran' => 'required|in:tunai,transfer,kredit',
@@ -178,7 +183,7 @@ class Create extends Component
             $item = Item::find($this->items_list[$index]['item_id']);
             if ($item && $item->tipe_item === 'barang' && $item->stok < $qty) {
                 $this->items_list[$index]['qty'] = $item->stok;
-                session()->flash('error', 'Stok terbatas!');
+                $this->dispatch('alert', message: 'Stok tidak mencukupi!');
             }
 
             $this->items_list[$index]['subtotal'] = $this->items_list[$index]['qty'] * $this->items_list[$index]['harga_satuan'];

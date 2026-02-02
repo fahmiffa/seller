@@ -11,10 +11,20 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $items = Item::where('user_id', auth()->id())->with(['satuan', 'supplier'])->latest()->paginate(10);
-        return view('items.index', compact('items'));
+        $search = $request->input('search');
+
+        $items = Item::where('user_id', auth()->id())
+            ->when($search, function ($query, $search) {
+                return $query->where('nama_item', 'like', "%{$search}%");
+            })
+            ->with(['satuan', 'supplier'])
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('items.index', compact('items', 'search'));
     }
 
     /**
