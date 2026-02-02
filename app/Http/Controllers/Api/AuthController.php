@@ -90,7 +90,8 @@ class AuthController extends Controller
     {
         return response()->json([
             'success' => true,
-            'user' => auth('api')->user()
+            'user' => auth('api')->user(),
+            'limit'=>env('LIMIT')
         ]);
     }
 
