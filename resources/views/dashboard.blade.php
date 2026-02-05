@@ -184,12 +184,20 @@
             let stockChart = null;
 
             function initCharts() {
+                // Check if Chart is defined, if not wait a bit
+                if (typeof Chart === 'undefined') {
+                    setTimeout(initCharts, 100);
+                    return;
+                }
+
                 // Destroy existing charts if they exist
                 if (salesPurchaseChart) {
                     salesPurchaseChart.destroy();
+                    salesPurchaseChart = null;
                 }
                 if (stockChart) {
                     stockChart.destroy();
+                    stockChart = null;
                 }
 
                 // Penjualan & Pembelian Chart

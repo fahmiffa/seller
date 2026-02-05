@@ -53,9 +53,9 @@ $login = function () {
             <div class="flex items-center justify-between mb-1">
                 <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
                 @if (Route::has('password.request'))
-                <a class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400" href="{{ route('password.request') }}" wire:navigate>
+                <!-- <a class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400" href="{{ route('password.request') }}" wire:navigate>
                     Forgot password?
-                </a>
+                </a> -->
                 @endif
             </div>
             <div class="relative group">
@@ -93,10 +93,10 @@ $login = function () {
 
         @if (Route::has('register'))
         <p class="text-center text-sm text-gray-600 dark:text-gray-400">
-            Don't have an account?
+            <!-- Don't have an account?
             <a href="{{ route('register') }}" wire:navigate class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
                 Create one for free
-            </a>
+            </a> -->
         </p>
         @endif
     </form>
