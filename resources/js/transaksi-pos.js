@@ -2,12 +2,14 @@ export default function transaksiPOS() {
     return {
         pendingList: JSON.parse(localStorage.getItem("pending_trans") || "[]"),
         printType: "58",
+        showPendingModal: false,
 
         async savePending() {
             // Wait for Livewire to sync and get the most recent state
             const items = await this.$wire.get("items_list");
             const customerId = await this.$wire.get("customer_id");
             const metode = await this.$wire.get("metode_pembayaran");
+            const diskon = await this.$wire.get("diskon");
             const total = await this.$wire.get("total");
 
             if (!items || items.length === 0) {
@@ -26,6 +28,7 @@ export default function transaksiPOS() {
                 items: JSON.parse(JSON.stringify(items)),
                 customer_id: customerId,
                 metode: metode,
+                diskon: diskon,
                 total: total,
             };
 
@@ -35,6 +38,7 @@ export default function transaksiPOS() {
                 JSON.stringify(this.pendingList),
             );
             await this.$wire.clearCart();
+            this.$wire.set("diskon", 0);
         },
 
         async restorePending(id) {
@@ -47,6 +51,7 @@ export default function transaksiPOS() {
             this.$wire.set("items_list", trans.items);
             this.$wire.set("customer_id", trans.customer_id);
             this.$wire.set("metode_pembayaran", trans.metode);
+            this.$wire.set("diskon", trans.diskon || 0);
 
             // Force component refresh
             await this.$wire.$refresh();

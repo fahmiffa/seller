@@ -101,8 +101,18 @@
                     <h3 class="text-lg font-semibold mb-6">Rincian Laba Rugi</h3>
 
                     <div class="space-y-4">
+                        <div class="flex justify-between items-center pb-2">
+                            <span class="text-sm">Total Penjualan (Bruto)</span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Rp {{ number_format($penjualan + $totalDiskon, 0, ',', '.') }}</span>
+                        </div>
+
                         <div class="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700">
-                            <span class="font-medium">Pendapatan (Penjualan)</span>
+                            <span class="text-sm">Total Diskon</span>
+                            <span class="text-sm font-medium text-red-500">(- Rp {{ number_format($totalDiskon, 0, ',', '.') }})</span>
+                        </div>
+
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-gray-700 pt-2">
+                            <span class="font-bold">Total Pendapatan (Nett)</span>
                             <span class="text-lg font-semibold text-green-600 dark:text-green-400">Rp {{ number_format($penjualan, 0, ',', '.') }}</span>
                         </div>
 

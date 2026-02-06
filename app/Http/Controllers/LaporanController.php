@@ -28,9 +28,11 @@ class LaporanController extends Controller
             ->orderBy('tanggal_transaksi', 'desc')
             ->get();
 
+        $totalSubtotal = $transaksis->sum(fn($t) => $t->subtotal ?? $t->total_harga);
+        $totalDiskon = $transaksis->sum('diskon');
         $total = $transaksis->sum('total_harga');
 
-        return view('laporans.penjualan', compact('transaksis', 'total', 'request'));
+        return view('laporans.penjualan', compact('transaksis', 'total', 'totalSubtotal', 'totalDiskon', 'request'));
     }
 
     public function pembelian(Request $request)
@@ -69,10 +71,14 @@ class LaporanController extends Controller
             'tanggal_sampai' => 'required|date|after_or_equal:tanggal_dari',
         ]);
 
-        // Total Penjualan
-        $penjualan = Transaksi::whereBetween('tanggal_transaksi', [$request->tanggal_dari, $request->tanggal_sampai])
-            ->where('user_id', auth()->user()->id)
-            ->sum('total_harga');
+        $query = Transaksi::whereBetween('tanggal_transaksi', [$request->tanggal_dari, $request->tanggal_sampai])
+            ->where('user_id', auth()->user()->id);
+
+        // Total Penjualan (Net)
+        $penjualan = (clone $query)->sum('total_harga');
+
+        // Total Diskon
+        $totalDiskon = (clone $query)->sum('diskon');
 
         // Total Pembelian
         $pembelian = Pembelian::whereBetween('tanggal_pembelian', [$request->tanggal_dari, $request->tanggal_sampai])
@@ -90,6 +96,6 @@ class LaporanController extends Controller
         $laba_kotor  = $penjualan - $hpp;
         $laba_bersih = $laba_kotor; // Bisa dikurangi biaya operasional jika ada
 
-        return view('laporans.laba-rugi', compact('penjualan', 'pembelian', 'hpp', 'laba_kotor', 'laba_bersih', 'request'));
+        return view('laporans.laba-rugi', compact('penjualan', 'totalDiskon', 'pembelian', 'hpp', 'laba_kotor', 'laba_bersih', 'request'));
     }
 }

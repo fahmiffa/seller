@@ -74,8 +74,24 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-lg font-semibold mb-4">Periode Laporan</h3>
-                    <p class="text-sm">{{ \Carbon\Carbon::parse($request->tanggal_dari)->format('d F Y') }} - {{ \Carbon\Carbon::parse($request->tanggal_sampai)->format('d F Y') }}</p>
-                    <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-2">Total: Rp {{ number_format($total, 0, ',', '.') }}</p>
+                    <p class="text-sm border-b border-gray-100 dark:border-gray-700 pb-4 mb-4">
+                        {{ \Carbon\Carbon::parse($request->tanggal_dari)->format('d F Y') }} - {{ \Carbon\Carbon::parse($request->tanggal_sampai)->format('d F Y') }}
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-100 dark:border-gray-600">
+                            <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Total Subtotal</p>
+                            <p class="text-xl font-bold text-gray-800 dark:text-gray-200">Rp {{ number_format($totalSubtotal, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="bg-red-50 dark:bg-red-900/10 p-4 rounded-xl border border-red-100 dark:border-red-900/30">
+                            <p class="text-xs text-red-500 uppercase font-bold tracking-wider mb-1">Total Diskon</p>
+                            <p class="text-xl font-bold text-red-600 dark:text-red-400">Rp {{ number_format($totalDiskon, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="bg-green-50 dark:bg-green-900/10 p-4 rounded-xl border border-green-100 dark:border-green-900/30">
+                            <p class="text-xs text-green-500 uppercase font-bold tracking-wider mb-1">Total Penjualan (Nett)</p>
+                            <p class="text-xl font-bold text-green-600 dark:text-green-400">Rp {{ number_format($total, 0, ',', '.') }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -88,8 +104,10 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tanggal</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Customer</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Kasir</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Metode</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider text-center">Metode</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Subtotal</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Diskon</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item</th>
                                 </tr>
                             </thead>
@@ -99,13 +117,21 @@
                                     <td class="px-6 py-4 whitespace-nowrap">{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d/m/Y') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $transaksi->customer ? $transaksi->customer->nama : 'Umum' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $transaksi->user->name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    <td class="px-4 py-4 whitespace-nowrap text-center">
+                                        <span class="px-2 inline-flex text-[10px] leading-5 font-semibold rounded-full 
                                                 {{ $transaksi->metode_pembayaran == 'tunai' ? 'bg-green-100 text-green-800' : ($transaksi->metode_pembayaran == 'transfer' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800') }}">
                                             {{ ucfirst($transaksi->metode_pembayaran) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right text-sm">Rp {{ number_format($transaksi->subtotal ?? $transaksi->total_harga, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right text-sm text-red-500">
+                                        @if($transaksi->diskon > 0)
+                                        -Rp {{ number_format($transaksi->diskon, 0, ',', '.') }}
+                                        @else
+                                        -
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-bold text-blue-600 dark:text-blue-400">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
                                     <td class="px-6 py-4">
                                         <ul class="text-sm">
                                             @foreach($transaksi->details as $detail)
@@ -120,6 +146,15 @@
                                 </tr>
                                 @endforelse
                             </tbody>
+                            <tfoot class="bg-gray-50 dark:bg-gray-700/50 font-bold">
+                                <tr>
+                                    <td colspan="4" class="px-4 py-4 text-right text-sm uppercase tracking-wider">Total Keseluruhan:</td>
+                                    <td class="px-4 py-4 text-right text-sm">Rp {{ number_format($totalSubtotal, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-4 text-right text-sm text-red-600">-Rp {{ number_format($totalDiskon, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-4 text-right text-sm text-green-600 dark:text-green-400">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>

@@ -40,6 +40,8 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Customer</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Metode</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Subtotal</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Diskon</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total</th>
                                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
                                 </tr>
@@ -56,7 +58,15 @@
                                             {{ ucfirst($transaksi->metode_pembayaran) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($transaksi->subtotal ?? $transaksi->total_harga, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-red-600 dark:text-red-400">
+                                        @if($transaksi->diskon > 0)
+                                        - Rp {{ number_format($transaksi->diskon, 0, ',', '.') }}
+                                        @else
+                                        -
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap font-bold text-blue-600 dark:text-blue-400">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ route('transaksis.show', $transaksi) }}" wire:navigate class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">Detail</a>
                                         <form action="{{ route('transaksis.destroy', $transaksi) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin?')">

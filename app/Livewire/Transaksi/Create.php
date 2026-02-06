@@ -23,6 +23,9 @@ class Create extends Component
     public $last_items = [];
     public $last_total = 0;
     public $last_customer_name = 'Umum';
+    public $diskon = 0;
+    public $last_diskon = 0;
+    public $last_subtotal = 0;
 
     public function mount()
     {
@@ -102,9 +105,16 @@ class Create extends Component
         $this->metode_pembayaran = $metode;
     }
 
-    public function getTotalProperty()
+    public function getSubtotalProperty()
     {
         return collect($this->items_list)->sum('subtotal');
+    }
+
+    public function getTotalProperty()
+    {
+        $subtotal = $this->subtotal;
+        $diskon = max(0, (float) $this->diskon);
+        return max(0, $subtotal - $diskon);
     }
 
     public function save()
@@ -126,6 +136,8 @@ class Create extends Component
                 'customer_id' => $this->customer_id,
                 'user_id' => Auth::id(),
                 'tanggal_transaksi' => $this->tanggal_transaksi,
+                'subtotal' => $this->subtotal,
+                'diskon' => $this->diskon,
                 'total_harga' => $this->total,
                 'metode_pembayaran' => $this->metode_pembayaran,
             ]);
@@ -150,6 +162,8 @@ class Create extends Component
 
         // Store data for printing before potentially clearing or moving away
         $this->last_items = $this->items_list;
+        $this->last_subtotal = $this->subtotal;
+        $this->last_diskon = $this->diskon;
         $this->last_total = $this->total;
         $this->last_transaction_id = $transaksiId;
 
@@ -161,6 +175,7 @@ class Create extends Component
         }
 
         $this->clearCart();
+        $this->diskon = 0;
         $this->showSuccessModal = true;
 
         session()->flash('success', 'Transaksi berhasil disimpan.');
@@ -172,6 +187,8 @@ class Create extends Component
         $this->customer_id = null;
         $this->last_items = [];
         $this->last_total = 0;
+        $this->last_subtotal = 0;
+        $this->last_diskon = 0;
         $this->last_transaction_id = null;
     }
 
