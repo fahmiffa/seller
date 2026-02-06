@@ -1,66 +1,4 @@
-<div x-data="{ 
-    pendingList: JSON.parse(localStorage.getItem('pending_trans') || '[]'),
-    savePending() {
-        // Use $wire to get the most recent state from Livewire
-        const items = $wire.items_list;
-        if (!items || items.length === 0) {
-            alert('Keranjang masih kosong!');
-            return;
-        }
-        
-        const newTrans = {
-            id: Date.now(),
-            name: 'Transaksi #' + (this.pendingList.length + 1) + ' (' + new Date().toLocaleTimeString() + ')',
-            items: JSON.parse(JSON.stringify(items)),
-            customer_id: $wire.customer_id,
-            metode: $wire.metode_pembayaran,
-            total: $wire.total
-        };
-        
-        this.pendingList.push(newTrans);
-        localStorage.setItem('pending_trans', JSON.stringify(this.pendingList));
-        $wire.clearCart();
-    },
-    restorePending(index) {
-        const trans = this.pendingList[index];
-        $wire.set('items_list', trans.items);
-        $wire.set('customer_id', trans.customer_id);
-        $wire.set('metode_pembayaran', trans.metode);
-        
-        this.pendingList.splice(index, 1);
-        localStorage.setItem('pending_trans', JSON.stringify(this.pendingList));
-    },
-    removePending(index) {
-        if(confirm('Hapus transaksi pending ini?')) {
-            this.pendingList.splice(index, 1);
-            localStorage.setItem('pending_trans', JSON.stringify(this.pendingList));
-        }
-    },
-    printType: '58',
-    printReceipt(type, fromModal = false) {
-        this.printType = type;
-        if (!fromModal) {
-            const items = @js($items_list);
-            if (this.pendingList.length === 0 && (!items || items.length === 0)) {
-                alert('Keranjang masih kosong!');
-                return;
-            }
-        }
-        
-        // Set paper size dynamically
-        const printSize = type === '58' ? '58mm auto' : 'A4 portrait';
-        document.documentElement.style.setProperty('--print-size', printSize);
-
-        this.$nextTick(() => {
-            window.print();
-        });
-    },
-    init() {
-        $wire.on('print-receipt', (event) => {
-            this.printReceipt(event.type, true);
-        });
-    }
-}" class="flex flex-col gap-6">
+<div x-data="transaksiPOS" class="flex flex-col gap-6">
     <style>
         @media print {
             body {
@@ -164,13 +102,13 @@
             </div>
 
             <!-- Right Side: Transaction/Cart -->
-            <div class="md:col-span-4 flex flex-col gap-4">
+            <div class="md:col-span-4 flex flex-col gap-4 sticky top-4 h-[calc(100vh-2rem)]">
                 <div
-                    class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-full flex flex-col">
+                    class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex-1 min-h-0 flex flex-col">
                     <h3 class="text-xl font-bold mb-6 text-gray-800 dark:text-gray-200">Transaksi</h3>
 
                     <!-- Cart Items Scrollable -->
-                    <div class="flex-grow overflow-y-auto space-y-6 mb-6 pr-2" style="max-height: 500px;">
+                    <div class="flex-grow overflow-y-auto space-y-6 mb-6 pr-2">
                         @forelse($items_list as $index => $item)
                         <div wire:key="cart-item-{{ $item['item_id'] }}-{{ $index }}" class="flex items-start justify-between gap-4">
                             <div class="flex-grow">
@@ -220,6 +158,33 @@
                             {{ number_format($this->total, 0, ',', '.') }}</span>
                     </div>
 
+                    <!-- Additional settings hidden in a small card -->
+                    <div
+                        class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mb-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Customer</label>
+                                <select wire:model="customer_id"
+                                    class="w-full text-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-md py-1">
+                                    <option value="">Umum</option>
+                                    @foreach ($customers as $customer)
+                                    <option value="{{ $customer->customer_id }}">{{ $customer->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1">Metode</label>
+                                <select wire:model="metode_pembayaran"
+                                    class="w-full text-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-md py-1">
+                                    <option value="cash">Cash</option>
+                                    <option value="transfer">Transfer</option>
+                                    <option value="qris">Qris</option>
+                                    <option value="kredit">Kredit</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Footer Buttons -->
                     <div class="grid grid-cols-5 gap-2">
                         <button type="button" wire:click="clearCart"
@@ -247,37 +212,12 @@
                     </div>
                 </div>
 
-                <!-- Additional settings hidden in a small card -->
-                <div
-                    class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">Customer</label>
-                            <select wire:model="customer_id"
-                                class="w-full text-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-md py-1">
-                                <option value="">Umum</option>
-                                @foreach ($customers as $customer)
-                                <option value="{{ $customer->customer_id }}">{{ $customer->nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">Metode</label>
-                            <select wire:model="metode_pembayaran"
-                                class="w-full text-sm border-gray-200 dark:border-gray-700 dark:bg-gray-900 rounded-md py-1">
-                                <option value="cash">Cash</option>
-                                <option value="transfer">Transfer</option>
-                                <option value="qris">Qris</option>
-                                <option value="kredit">Kredit</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
 
         <!-- Pending Transaksi Table -->
-        <div
+        <div wire:ignore
             class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div class="p-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
                 <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider">Pending Transaksi
@@ -314,8 +254,8 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                    <button type="button" @click="restorePending(index)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">Restore</button>
-                                    <button type="button" @click="removePending(index)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Hapus</button>
+                                    <button type="button" @click="restorePending(trans.id)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">Restore</button>
+                                    <button type="button" @click="removePending(trans.id)" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Hapus</button>
                                 </td>
                             </tr>
                         </template>

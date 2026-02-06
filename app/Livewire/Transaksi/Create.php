@@ -95,6 +95,13 @@ class Create extends Component
         $this->items_list = array_values($this->items_list);
     }
 
+    public function restoreCart($items, $customerId, $metode)
+    {
+        $this->items_list = $items;
+        $this->customer_id = $customerId;
+        $this->metode_pembayaran = $metode;
+    }
+
     public function getTotalProperty()
     {
         return collect($this->items_list)->sum('subtotal');

@@ -7,6 +7,8 @@ use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ItemController extends Controller
 {
@@ -54,7 +56,7 @@ class ItemController extends Controller
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'nullable|integer|min:0',
             'expired_at' => 'nullable|date',
-            'image' => 'nullable|image|max:2048', // Max 2MB
+            'image' => 'nullable|image|max:3072', // Max 3MB
         ]);
 
         if ($validator->fails()) {
@@ -69,8 +71,14 @@ class ItemController extends Controller
         $data['user_id'] = auth()->id();
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('items', 'public');
-            $data['image'] = $path;
+            $file = $request->file('image');
+            $filename = $file->hashName();
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($file);
+            $image->scale(width: 800);
+            $encoded = $image->toJpeg(quality: 75);
+            Storage::disk('public')->put('items/' . $filename, $encoded);
+            $data['image'] = 'items/' . $filename;
         }
 
         $item = Item::create($data);
@@ -134,7 +142,7 @@ class ItemController extends Controller
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'nullable|integer|min:0',
             'expired_at' => 'nullable|date',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:3072',
         ]);
 
         if ($validator->fails()) {
@@ -152,8 +160,15 @@ class ItemController extends Controller
             if ($item->image) {
                 Storage::disk('public')->delete($item->image);
             }
-            $path = $request->file('image')->store('items', 'public');
-            $data['image'] = $path;
+
+            $file = $request->file('image');
+            $filename = $file->hashName();
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($file);
+            $image->scale(width: 800);
+            $encoded = $image->toJpeg(quality: 75);
+            Storage::disk('public')->put('items/' . $filename, $encoded);
+            $data['image'] = 'items/' . $filename;
         }
 
         $item->update($data);

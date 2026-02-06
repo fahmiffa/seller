@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ItemController extends Controller
 {
@@ -60,12 +62,18 @@ class ItemController extends Controller
             ],
             'stok' => 'nullable|integer|min:0',
             'expired_at' => 'nullable|date',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:3072',
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('items', 'public');
-            $validated['image'] = $path;
+            $file = $request->file('image');
+            $filename = $file->hashName();
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($file);
+            $image->scale(width: 800);
+            $encoded = $image->toJpeg(quality: 75);
+            Storage::disk('public')->put('items/' . $filename, $encoded);
+            $validated['image'] = 'items/' . $filename;
         }
 
         if ($validated['tipe_item'] === 'jasa') {
@@ -136,15 +144,21 @@ class ItemController extends Controller
             ],
             'stok' => 'nullable|integer|min:0',
             'expired_at' => 'nullable|date',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:3072',
         ]);
 
         if ($request->hasFile('image')) {
             if ($item->image) {
                 Storage::disk('public')->delete($item->image);
             }
-            $path = $request->file('image')->store('items', 'public');
-            $validated['image'] = $path;
+            $file = $request->file('image');
+            $filename = $file->hashName();
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($file);
+            $image->scale(width: 800);
+            $encoded = $image->toJpeg(quality: 75);
+            Storage::disk('public')->put('items/' . $filename, $encoded);
+            $validated['image'] = 'items/' . $filename;
         }
 
         if ($validated['tipe_item'] === 'jasa') {
