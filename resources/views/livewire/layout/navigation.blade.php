@@ -32,9 +32,11 @@ $logout = function (Logout $logout) {
                         {{ __('Customer') }}
                     </x-nav-link>
                     @endif
+                    @if(auth()->user()->role != 3)
                     <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" wire:navigate>
                         {{ __('Supplier') }}
                     </x-nav-link>
+                    @endif
                     @if(auth()->user()->role != 3)
                     <x-nav-link :href="route('satuans.index')" :active="request()->routeIs('satuans.*')" wire:navigate>
                         {{ __('Satuan') }}
@@ -135,9 +137,11 @@ $logout = function (Logout $logout) {
                 {{ __('Customer') }}
             </x-responsive-nav-link>
             @endif
+            @if(auth()->user()->role != 3)
             <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" wire:navigate>
                 {{ __('Supplier') }}
             </x-responsive-nav-link>
+            @endif
             @if(auth()->user()->role != 3)
             <x-responsive-nav-link :href="route('satuans.index')" :active="request()->routeIs('satuans.*')" wire:navigate>
                 {{ __('Satuan') }}
