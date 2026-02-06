@@ -15,7 +15,7 @@ class SatuanController extends Controller
     public function index()
     {
 
-        $satuans = Satuan::where('user_id', auth()->id())->latest()->get();
+        $satuans = Satuan::where('user_id', auth()->user()->getOwnerId())->latest()->get();
 
         return response()->json([
             'success' => true,
@@ -43,7 +43,7 @@ class SatuanController extends Controller
         }
 
         $data = $request->all();
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = auth()->user()->getOwnerId();
         $satuan = Satuan::create($data);
 
         return response()->json([
@@ -58,7 +58,7 @@ class SatuanController extends Controller
      */
     public function show($id)
     {
-        $satuan = Satuan::where('user_id', auth()->id())->find($id);
+        $satuan = Satuan::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$satuan) {
             return response()->json([
@@ -79,7 +79,7 @@ class SatuanController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $satuan = Satuan::where('user_id', auth()->id())->find($id);
+        $satuan = Satuan::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$satuan) {
             return response()->json([
@@ -115,7 +115,7 @@ class SatuanController extends Controller
      */
     public function destroy($id)
     {
-        $satuan = Satuan::where('user_id', auth()->id())->find($id);
+        $satuan = Satuan::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$satuan) {
             return response()->json([

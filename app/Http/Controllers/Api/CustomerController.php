@@ -14,7 +14,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customers = Customer::where('user_id', auth()->id())->latest()->get();
+        $customers = Customer::where('user_id', auth()->user()->getOwnerId())->latest()->get();
 
         return response()->json([
             'success' => true,
@@ -44,7 +44,7 @@ class CustomerController extends Controller
         }
 
         $data = $request->all();
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = auth()->user()->getOwnerId();
         $customer = Customer::create($data);
 
         return response()->json([
@@ -59,7 +59,7 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
-        $customer = Customer::where('user_id', auth()->id())->find($id);
+        $customer = Customer::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$customer) {
             return response()->json([
@@ -80,7 +80,7 @@ class CustomerController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $customer = Customer::where('user_id', auth()->id())->find($id);
+        $customer = Customer::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$customer) {
             return response()->json([
@@ -118,7 +118,7 @@ class CustomerController extends Controller
      */
     public function destroy($id)
     {
-        $customer = Customer::where('user_id', auth()->id())->find($id);
+        $customer = Customer::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$customer) {
             return response()->json([

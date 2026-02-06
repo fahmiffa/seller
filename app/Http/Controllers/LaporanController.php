@@ -24,7 +24,7 @@ class LaporanController extends Controller
 
         $transaksis = Transaksi::with(['customer', 'user', 'details.item'])
             ->whereBetween('tanggal_transaksi', [$request->tanggal_dari, $request->tanggal_sampai])
-            ->where('user_id', auth()->user()->id)
+            ->where('user_id', auth()->user()->getOwnerId())
             ->orderBy('tanggal_transaksi', 'desc')
             ->get();
 
@@ -44,7 +44,7 @@ class LaporanController extends Controller
 
         $pembelians = Pembelian::with(['supplier', 'user', 'details.item'])
             ->whereBetween('tanggal_pembelian', [$request->tanggal_dari, $request->tanggal_sampai])
-            ->where('user_id', auth()->user()->id)
+            ->where('user_id', auth()->user()->getOwnerId())
             ->orderBy('tanggal_pembelian', 'desc')
             ->get();
 
@@ -56,7 +56,7 @@ class LaporanController extends Controller
     public function stok(Request $request)
     {
         $items = Item::with(['satuan'])
-            ->where('user_id', auth()->user()->id)
+            ->where('user_id', auth()->user()->getOwnerId())
             ->where('tipe_item', 'barang')
             ->orderBy('nama_item')
             ->get();
@@ -72,7 +72,7 @@ class LaporanController extends Controller
         ]);
 
         $query = Transaksi::whereBetween('tanggal_transaksi', [$request->tanggal_dari, $request->tanggal_sampai])
-            ->where('user_id', auth()->user()->id);
+            ->where('user_id', auth()->user()->getOwnerId());
 
         // Total Penjualan (Net)
         $penjualan = (clone $query)->sum('total_harga');
@@ -82,12 +82,12 @@ class LaporanController extends Controller
 
         // Total Pembelian
         $pembelian = Pembelian::whereBetween('tanggal_pembelian', [$request->tanggal_dari, $request->tanggal_sampai])
-            ->where('user_id', auth()->user()->id)
+            ->where('user_id', auth()->user()->getOwnerId())
             ->sum('total_pembelian');
 
         // HPP (Harga Pokok Penjualan) - dari detail transaksi
         $hpp = DetailTransaksi::whereHas('transaksi', function ($query) use ($request) {
-            $query->whereBetween('tanggal_transaksi', [$request->tanggal_dari, $request->tanggal_sampai])->where('user_id', auth()->user()->id);
+            $query->whereBetween('tanggal_transaksi', [$request->tanggal_dari, $request->tanggal_sampai])->where('user_id', auth()->user()->getOwnerId());
         })
             ->join('items', 'detail_transaksis.item_id', '=', 'items.item_id')
             ->selectRaw('SUM(detail_transaksis.qty * COALESCE(items.harga_beli, 0)) as total_hpp')

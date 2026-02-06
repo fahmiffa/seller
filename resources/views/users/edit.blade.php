@@ -16,7 +16,7 @@
                             <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama</label>
                             <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
                             @error('name')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -24,7 +24,7 @@
                             <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                             <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
                             @error('email')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -32,7 +32,7 @@
                             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password (Kosongkan jika tidak ingin mengubah)</label>
                             <input type="password" name="password" id="password" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                             @error('password')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -44,11 +44,25 @@
                         <div class="mb-4">
                             <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
                             <select name="role" id="role" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
-                                <option value="1" {{ old('role', $user->role) == 1 ? 'selected' : '' }}>User</option>
+                                <option value="1" {{ old('role', $user->role) == 1 ? 'selected' : '' }}>User/Mitra</option>
+                                <option value="3" {{ old('role', $user->role) == 3 ? 'selected' : '' }}>Operator</option>
                                 <option value="0" {{ old('role', $user->role) == 0 ? 'selected' : '' }}>Admin</option>
                             </select>
                             @error('role')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="parent_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Parent (Opsional)</label>
+                            <select name="parent_id" id="parent_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <option value="">Tidak ada parent</option>
+                                @foreach($parents as $parent)
+                                <option value="{{ $parent->id }}" {{ old('parent_id', $user->parent_id) == $parent->id ? 'selected' : '' }}>{{ $parent->name }} ({{ $parent->email }})</option>
+                                @endforeach
+                            </select>
+                            @error('parent_id')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -56,7 +70,7 @@
                             <label for="saldo" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Saldo</label>
                             <input type="number" name="saldo" id="saldo" value="{{ old('saldo', $user->saldo ?? 0) }}" step="0.01" min="0" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
                             @error('saldo')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -67,7 +81,7 @@
                                 <option value="inactive" {{ old('status', $user->status ?? 'active') == 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
                             </select>
                             @error('status')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -85,4 +99,3 @@
         </div>
     </div>
 </x-app-layout>
-

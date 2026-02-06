@@ -17,7 +17,7 @@ class ItemController extends Controller
     {
         $search = $request->input('search');
 
-        $items = Item::where('user_id', auth()->id())
+        $items = Item::where('user_id', auth()->user()->getOwnerId())
             ->when($search, function ($query, $search) {
                 return $query->where('nama_item', 'like', "%{$search}%");
             })
@@ -34,8 +34,8 @@ class ItemController extends Controller
      */
     public function create()
     {
-        $satuans = \App\Models\Satuan::where('user_id', auth()->id())->get();
-        $suppliers = \App\Models\Supplier::where('user_id', auth()->id())->get();
+        $satuans = \App\Models\Satuan::where('user_id', auth()->user()->getOwnerId())->get();
+        $suppliers = \App\Models\Supplier::where('user_id', auth()->user()->getOwnerId())->get();
         return view('items.create', compact('satuans', 'suppliers'));
     }
 
@@ -82,7 +82,7 @@ class ItemController extends Controller
             $validated['supplier_id'] = null;
         }
 
-        $validated['user_id'] = auth()->id();
+        $validated['user_id'] = auth()->user()->getOwnerId();
         Item::create($validated);
 
         return redirect()->route('items.index')->with('success', 'Item berhasil ditambahkan.');
@@ -94,7 +94,7 @@ class ItemController extends Controller
     public function show(Item $item)
     {
         // Check if item belongs to current user
-        if ($item->user_id != auth()->id()) {
+        if ($item->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk melihat item ini.');
         }
 
@@ -107,12 +107,12 @@ class ItemController extends Controller
     public function edit(Item $item)
     {
         // Check if item belongs to current user
-        if ($item->user_id != auth()->id()) {
+        if ($item->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit item ini.');
         }
 
-        $satuans = \App\Models\Satuan::where('user_id', auth()->id())->get();
-        $suppliers = \App\Models\Supplier::where('user_id', auth()->id())->get();
+        $satuans = \App\Models\Satuan::where('user_id', auth()->user()->getOwnerId())->get();
+        $suppliers = \App\Models\Supplier::where('user_id', auth()->user()->getOwnerId())->get();
         return view('items.edit', compact('item', 'satuans', 'suppliers'));
     }
 
@@ -122,7 +122,7 @@ class ItemController extends Controller
     public function update(Request $request, Item $item)
     {
         // Check if item belongs to current user
-        if ($item->user_id != auth()->id()) {
+        if ($item->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit item ini.');
         }
 
@@ -178,7 +178,7 @@ class ItemController extends Controller
     public function destroy(Item $item)
     {
         // Check if item belongs to current user
-        if ($item->user_id != auth()->id()) {
+        if ($item->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk menghapus item ini.');
         }
 

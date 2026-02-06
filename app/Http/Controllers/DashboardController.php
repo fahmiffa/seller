@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Item;
@@ -20,15 +21,15 @@ class DashboardController extends Controller
             $dates[] = Carbon::now()->subDays($i)->format('d M');
 
             // Penjualan per hari
-            $penjualanData[] = Transaksi::where('user_id', auth()->user()->id)->whereDate('tanggal_transaksi', $date)->sum('total_harga');
+            $penjualanData[] = Transaksi::where('user_id', auth()->user()->getOwnerId())->whereDate('tanggal_transaksi', $date)->sum('total_harga');
 
             // Pembelian per hari
-            $pembelianData[] = Pembelian::where('user_id', auth()->user()->id)->whereDate('tanggal_pembelian', $date)->sum('total_pembelian');
+            $pembelianData[] = Pembelian::where('user_id', auth()->user()->getOwnerId())->whereDate('tanggal_pembelian', $date)->sum('total_pembelian');
         }
 
         // Stok barang (top 10 items)
         $stokItems = Item::where('tipe_item', 'barang')
-            ->where('user_id', auth()->user()->id)
+            ->where('user_id', auth()->user()->getOwnerId())
             ->orderBy('stok', 'desc')
             ->limit(10)
             ->get();
@@ -37,19 +38,19 @@ class DashboardController extends Controller
         $itemStoks = $stokItems->pluck('stok')->toArray();
 
         // Summary cards
-        $totalPenjualanBulanIni = Transaksi::where('user_id', auth()->user()->id)->whereMonth('tanggal_transaksi', Carbon::now()->month)
+        $totalPenjualanBulanIni = Transaksi::where('user_id', auth()->user()->getOwnerId())->whereMonth('tanggal_transaksi', Carbon::now()->month)
             ->whereYear('tanggal_transaksi', Carbon::now()->year)
             ->sum('total_harga');
 
-        $totalPembelianBulanIni = Pembelian::where('user_id', auth()->user()->id)->whereMonth('tanggal_pembelian', Carbon::now()->month)
+        $totalPembelianBulanIni = Pembelian::where('user_id', auth()->user()->getOwnerId())->whereMonth('tanggal_pembelian', Carbon::now()->month)
             ->whereYear('tanggal_pembelian', Carbon::now()->year)
             ->sum('total_pembelian');
 
-        $totalTransaksiBulanIni = Transaksi::where('user_id', auth()->user()->id)->whereMonth('tanggal_transaksi', Carbon::now()->month)
+        $totalTransaksiBulanIni = Transaksi::where('user_id', auth()->user()->getOwnerId())->whereMonth('tanggal_transaksi', Carbon::now()->month)
             ->whereYear('tanggal_transaksi', Carbon::now()->year)
             ->count();
 
-        $stokMenipis = Item::where('user_id', auth()->user()->id)->where('tipe_item', 'barang')
+        $stokMenipis = Item::where('user_id', auth()->user()->getOwnerId())->where('tipe_item', 'barang')
             ->where('stok', '<=', 10)
             ->count();
 

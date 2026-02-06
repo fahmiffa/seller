@@ -25,7 +25,7 @@ class UserController extends Controller
     public function index()
     {
         $this->checkAdminAccess();
-        $users = User::where('role', 1)->latest()->paginate(10);
+        $users = User::latest()->paginate(10);
         return view('users.index', compact('users'));
     }
 
@@ -35,7 +35,8 @@ class UserController extends Controller
     public function create()
     {
         $this->checkAdminAccess();
-        return view('users.create');
+        $parents = User::where('role', 0)->orWhere('role', 1)->get();
+        return view('users.create', compact('parents'));
     }
 
     /**
@@ -48,9 +49,10 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|integer|min:0',
+            'role' => 'required|integer|in:0,1,3',
             'saldo' => 'required|numeric|min:0',
             'status' => 'required|string|in:active,inactive',
+            'parent_id' => 'nullable|exists:users,id',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -75,7 +77,8 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $this->checkAdminAccess();
-        return view('users.edit', compact('user'));
+        $parents = User::where('id', '!=', $user->id)->get();
+        return view('users.edit', compact('user', 'parents'));
     }
 
     /**
@@ -88,9 +91,10 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|confirmed',
-            'role' => 'required|integer|min:0',
+            'role' => 'required|integer|in:0,1,3',
             'saldo' => 'required|numeric|min:0',
             'status' => 'required|string|in:active,inactive',
+            'parent_id' => 'nullable|exists:users,id',
         ]);
 
         if (empty($validated['password'])) {
@@ -115,4 +119,3 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
 }
-

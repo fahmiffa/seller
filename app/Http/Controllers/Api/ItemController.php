@@ -17,7 +17,7 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Item::where('user_id', auth()->id())->with(['satuan', 'supplier']);
+        $query = Item::where('user_id', auth()->user()->getOwnerId())->with(['satuan', 'supplier']);
 
         // Search by name
         if ($request->has('nama_item')) {
@@ -68,7 +68,7 @@ class ItemController extends Controller
         }
 
         $data = $request->except('image');
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = auth()->user()->getOwnerId();
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
@@ -99,7 +99,7 @@ class ItemController extends Controller
         // Assuming item_id is integer. If barcode is stored in a column, use that. 
         // Since no barcode column in fillable, assuming standard ID lookup.
 
-        $item = Item::where('user_id', auth()->id())->with(['satuan', 'supplier'])->find($id);
+        $item = Item::where('user_id', auth()->user()->getOwnerId())->with(['satuan', 'supplier'])->find($id);
 
         if (!$item) {
             return response()->json([
@@ -124,7 +124,7 @@ class ItemController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $item = Item::where('user_id', auth()->id())->find($id);
+        $item = Item::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$item) {
             return response()->json([
@@ -185,7 +185,7 @@ class ItemController extends Controller
      */
     public function destroy($id)
     {
-        $item = Item::where('user_id', auth()->id())->find($id);
+        $item = Item::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$item) {
             return response()->json([

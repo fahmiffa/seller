@@ -17,7 +17,7 @@ class PembelianController extends Controller
      */
     public function index()
     {
-        $pembelians = Pembelian::where('user_id', auth()->id())
+        $pembelians = Pembelian::where('user_id', auth()->user()->getOwnerId())
             ->with(['supplier', 'user', 'details.item'])
             ->latest()
             ->get();
@@ -71,7 +71,7 @@ class PembelianController extends Controller
             // Create Header
             $pembelian = Pembelian::create([
                 'supplier_id' => $request->supplier_id,
-                'user_id' => auth()->id(), // Assuming JWT auth
+                'user_id' => auth()->user()->getOwnerId(), // Assuming JWT auth
                 'tanggal_pembelian' => $request->tanggal_pembelian,
                 'total_pembelian' => $total_pembelian,
             ]);
@@ -114,7 +114,7 @@ class PembelianController extends Controller
      */
     public function show($id)
     {
-        $pembelian = Pembelian::where('user_id', auth()->id())
+        $pembelian = Pembelian::where('user_id', auth()->user()->getOwnerId())
             ->with(['supplier', 'user', 'details.item'])
             ->find($id);
 
@@ -153,7 +153,7 @@ class PembelianController extends Controller
      */
     public function destroy($id)
     {
-        $pembelian = Pembelian::where('user_id', auth()->id())->with('details')->find($id);
+        $pembelian = Pembelian::where('user_id', auth()->user()->getOwnerId())->with('details')->find($id);
 
         if (!$pembelian) {
             return response()->json([

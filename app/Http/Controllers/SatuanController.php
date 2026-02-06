@@ -12,7 +12,7 @@ class SatuanController extends Controller
      */
     public function index()
     {
-        $satuans = Satuan::where('user_id', auth()->id())->latest()->paginate(10);
+        $satuans = Satuan::where('user_id', auth()->user()->getOwnerId())->latest()->paginate(10);
         return view('satuans.index', compact('satuans'));
     }
 
@@ -34,7 +34,7 @@ class SatuanController extends Controller
             'keterangan' => 'nullable|string|max:255',
         ]);
 
-        $validated['user_id'] = auth()->id();
+        $validated['user_id'] = auth()->user()->getOwnerId();
         Satuan::create($validated);
 
         return redirect()->route('satuans.index')->with('success', 'Satuan berhasil ditambahkan.');
@@ -46,7 +46,7 @@ class SatuanController extends Controller
     public function show(Satuan $satuan)
     {
         // Check if satuan belongs to current user
-        if ($satuan->user_id != auth()->id()) {
+        if ($satuan->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk melihat satuan ini.');
         }
 
@@ -67,7 +67,7 @@ class SatuanController extends Controller
     public function update(Request $request, Satuan $satuan)
     {
         // Check if satuan belongs to current user
-        if ($satuan->user_id != auth()->id()) {
+        if ($satuan->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit satuan ini.');
         }
 
@@ -87,7 +87,7 @@ class SatuanController extends Controller
     public function destroy(Satuan $satuan)
     {
         // Check if satuan belongs to current user
-        if ($satuan->user_id != auth()->id()) {
+        if ($satuan->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk menghapus satuan ini.');
         }
 

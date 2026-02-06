@@ -13,7 +13,7 @@ class HistoryController extends Controller
      */
     public function index(Request $request)
     {
-        $histories = History::where('user_id', auth()->id())
+        $histories = History::where('user_id', auth()->user()->getOwnerId())
             ->latest()
             ->paginate(20);
 

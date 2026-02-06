@@ -12,7 +12,7 @@ class SupplierController extends Controller
      */
     public function index()
     {
-        $suppliers = Supplier::where('user_id', auth()->id())->latest()->paginate(10);
+        $suppliers = Supplier::where('user_id', auth()->user()->getOwnerId())->latest()->paginate(10);
         return view('suppliers.index', compact('suppliers'));
     }
 
@@ -36,7 +36,7 @@ class SupplierController extends Controller
             'email' => 'nullable|email|unique:suppliers,email',
         ]);
 
-        $validated['user_id'] = auth()->id();
+        $validated['user_id'] = auth()->user()->getOwnerId();
         Supplier::create($validated);
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier berhasil ditambahkan.');
@@ -48,7 +48,7 @@ class SupplierController extends Controller
     public function show(Supplier $supplier)
     {
         // Check if supplier belongs to current user
-        if ($supplier->user_id != auth()->id()) {
+        if ($supplier->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk melihat supplier ini.');
         }
 
@@ -69,7 +69,7 @@ class SupplierController extends Controller
     public function update(Request $request, Supplier $supplier)
     {
         // Check if supplier belongs to current user
-        if ($supplier->user_id != auth()->id()) {
+        if ($supplier->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit supplier ini.');
         }
 
@@ -91,7 +91,7 @@ class SupplierController extends Controller
     public function destroy(Supplier $supplier)
     {
         // Check if supplier belongs to current user
-        if ($supplier->user_id != auth()->id()) {
+        if ($supplier->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk menghapus supplier ini.');
         }
 

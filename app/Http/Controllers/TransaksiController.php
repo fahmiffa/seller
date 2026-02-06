@@ -11,7 +11,7 @@ class TransaksiController extends Controller
      */
     public function index(Request $request)
     {
-        $query = \App\Models\Transaksi::where('user_id', auth()->id())->with(['customer', 'user']);
+        $query = \App\Models\Transaksi::where('user_id', auth()->user()->getOwnerId())->with(['customer', 'user']);
 
         if ($request->has('metode_pembayaran') && $request->metode_pembayaran != '') {
             $query->where('metode_pembayaran', $request->metode_pembayaran);
@@ -43,7 +43,7 @@ class TransaksiController extends Controller
     public function show(\App\Models\Transaksi $transaksi)
     {
         // Check if transaksi belongs to current user
-        if ($transaksi->user_id != auth()->id()) {
+        if ($transaksi->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk melihat transaksi ini.');
         }
 
@@ -73,7 +73,7 @@ class TransaksiController extends Controller
     public function destroy(\App\Models\Transaksi $transaksi)
     {
         // Check if transaksi belongs to current user
-        if ($transaksi->user_id != auth()->id()) {
+        if ($transaksi->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk menghapus transaksi ini.');
         }
 

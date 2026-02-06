@@ -14,7 +14,7 @@ class SupplierController extends Controller
      */
     public function index()
     {
-        $suppliers = Supplier::where('user_id', auth()->id())->latest()->get();
+        $suppliers = Supplier::where('user_id', auth()->user()->getOwnerId())->latest()->get();
 
         return response()->json([
             'success' => true,
@@ -44,7 +44,7 @@ class SupplierController extends Controller
         }
 
         $data = $request->all();
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = auth()->user()->getOwnerId();
         $supplier = Supplier::create($data);
 
         return response()->json([
@@ -59,7 +59,7 @@ class SupplierController extends Controller
      */
     public function show($id)
     {
-        $supplier = Supplier::where('user_id', auth()->id())->find($id);
+        $supplier = Supplier::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$supplier) {
             return response()->json([
@@ -80,7 +80,7 @@ class SupplierController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $supplier = Supplier::where('user_id', auth()->id())->find($id);
+        $supplier = Supplier::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$supplier) {
             return response()->json([
@@ -118,7 +118,7 @@ class SupplierController extends Controller
      */
     public function destroy($id)
     {
-        $supplier = Supplier::where('user_id', auth()->id())->find($id);
+        $supplier = Supplier::where('user_id', auth()->user()->getOwnerId())->find($id);
 
         if (!$supplier) {
             return response()->json([

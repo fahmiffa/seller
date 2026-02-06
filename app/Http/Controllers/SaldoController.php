@@ -42,7 +42,7 @@ class SaldoController extends Controller
         $user->save();
 
         History::create([
-            'user_id' => $user->id,
+            'user_id' => $user->getOwnerId(),
             'type' => 'topup',
             'amount' => $validated['amount'],
             'description' => $validated['description'] ?? 'Top up balance',

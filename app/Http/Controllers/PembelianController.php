@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -10,7 +11,7 @@ class PembelianController extends Controller
      */
     public function index()
     {
-        $pembelians = \App\Models\Pembelian::where('user_id', auth()->id())->with(['supplier', 'user'])->latest()->paginate(10);
+        $pembelians = \App\Models\Pembelian::where('user_id', auth()->user()->getOwnerId())->with(['supplier', 'user'])->latest()->paginate(10);
         return view('pembelians.index', compact('pembelians'));
     }
 
@@ -36,7 +37,7 @@ class PembelianController extends Controller
     public function show(\App\Models\Pembelian $pembelian)
     {
         // Check if pembelian belongs to current user
-        if ($pembelian->user_id != auth()->id()) {
+        if ($pembelian->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk melihat pembelian ini.');
         }
 
@@ -66,7 +67,7 @@ class PembelianController extends Controller
     public function destroy(\App\Models\Pembelian $pembelian)
     {
         // Check if pembelian belongs to current user
-        if ($pembelian->user_id != auth()->id()) {
+        if ($pembelian->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk menghapus pembelian ini.');
         }
 

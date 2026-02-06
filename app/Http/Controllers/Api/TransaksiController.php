@@ -17,7 +17,7 @@ class TransaksiController extends Controller
      */
     public function index()
     {
-        $transaksis = Transaksi::where('user_id', auth()->id())
+        $transaksis = Transaksi::where('user_id', auth()->user()->getOwnerId())
             ->with(['customer', 'user', 'details.item'])
             ->latest()
             ->get();
@@ -71,7 +71,7 @@ class TransaksiController extends Controller
             // Create Header
             $transaksi = Transaksi::create([
                 'customer_id' => $request->customer_id,
-                'user_id' => auth()->id(),
+                'user_id' => auth()->user()->getOwnerId(),
                 'tanggal_transaksi' => $request->tanggal_transaksi,
                 'subtotal' => $request->subtotal,
                 'diskon' => $request->diskon ?? 0,
@@ -123,7 +123,7 @@ class TransaksiController extends Controller
      */
     public function show($id)
     {
-        $transaksi = Transaksi::where('user_id', auth()->id())
+        $transaksi = Transaksi::where('user_id', auth()->user()->getOwnerId())
             ->with(['customer', 'user', 'details.item'])
             ->find($id);
 
@@ -146,7 +146,7 @@ class TransaksiController extends Controller
      */
     public function destroy($id)
     {
-        $transaksi = Transaksi::where('user_id', auth()->id())->with('details.item')->find($id);
+        $transaksi = Transaksi::where('user_id', auth()->user()->getOwnerId())->with('details.item')->find($id);
 
         if (!$transaksi) {
             return response()->json([

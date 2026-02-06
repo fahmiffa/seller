@@ -12,7 +12,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customers = Customer::where('user_id', auth()->id())->latest()->paginate(10);
+        $customers = Customer::where('user_id', auth()->user()->getOwnerId())->latest()->paginate(10);
         return view('customers.index', compact('customers'));
     }
 
@@ -36,7 +36,7 @@ class CustomerController extends Controller
             'email' => 'nullable|email|unique:customers,email',
         ]);
 
-        $validated['user_id'] = auth()->id();
+        $validated['user_id'] = auth()->user()->getOwnerId();
         Customer::create($validated);
 
         return redirect()->route('customers.index')->with('success', 'Customer berhasil ditambahkan.');
@@ -48,7 +48,7 @@ class CustomerController extends Controller
     public function show(Customer $customer)
     {
         // Check if customer belongs to current user
-        if ($customer->user_id != auth()->id()) {
+        if ($customer->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk melihat customer ini.');
         }
 
@@ -69,7 +69,7 @@ class CustomerController extends Controller
     public function update(Request $request, Customer $customer)
     {
         // Check if customer belongs to current user
-        if ($customer->user_id != auth()->id()) {
+        if ($customer->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit customer ini.');
         }
 
@@ -91,7 +91,7 @@ class CustomerController extends Controller
     public function destroy(Customer $customer)
     {
         // Check if customer belongs to current user
-        if ($customer->user_id != auth()->id()) {
+        if ($customer->user_id != auth()->user()->getOwnerId()) {
             abort(403, 'Anda tidak memiliki akses untuk menghapus customer ini.');
         }
 
