@@ -35,6 +35,7 @@
                 </div>
 
                 <!-- Laporan Pembelian -->
+                @if(auth()->user()->role != 3)
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <div class="flex items-center mb-4">
@@ -59,8 +60,10 @@
                         </form>
                     </div>
                 </div>
+                @endif
 
                 <!-- Laporan Stok -->
+                @if(auth()->user()->role != 3)
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <div class="flex items-center mb-4">
@@ -77,8 +80,10 @@
                         </form>
                     </div>
                 </div>
+                @endif
 
                 <!-- Laporan Laba Rugi -->
+                @if(auth()->user()->role != 3)
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <div class="flex items-center mb-4">
@@ -103,6 +108,7 @@
                         </form>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>

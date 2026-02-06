@@ -29,6 +29,7 @@
                 </div>
 
                 <!-- Total Pembelian Bulan Ini -->
+                @if(auth()->user()->role != 3)
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <div class="flex items-center">
@@ -46,6 +47,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
                 <!-- Total Transaksi -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">

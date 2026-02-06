@@ -27,21 +27,27 @@ $logout = function (Logout $logout) {
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @if(auth()->user()->role != 3)
                     <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')" wire:navigate>
                         {{ __('Customer') }}
                     </x-nav-link>
+                    @endif
                     <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" wire:navigate>
                         {{ __('Supplier') }}
                     </x-nav-link>
+                    @if(auth()->user()->role != 3)
                     <x-nav-link :href="route('satuans.index')" :active="request()->routeIs('satuans.*')" wire:navigate>
                         {{ __('Satuan') }}
                     </x-nav-link>
                     <x-nav-link :href="route('items.index')" :active="request()->routeIs('items.*')" wire:navigate>
                         {{ __('Produk') }}
                     </x-nav-link>
+                    @endif
+                    @if(auth()->user()->role != 3)
                     <x-nav-link :href="route('pembelians.index')" :active="request()->routeIs('pembelians.*')" wire:navigate>
                         {{ __('Pembelian') }}
                     </x-nav-link>
+                    @endif
                     <x-nav-link :href="route('transaksis.index')" :active="request()->routeIs('transaksis.*')" wire:navigate>
                         {{ __('Penjualan') }}
                     </x-nav-link>
@@ -124,21 +130,27 @@ $logout = function (Logout $logout) {
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @if(auth()->user()->role != 3)
             <x-responsive-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')" wire:navigate>
                 {{ __('Customer') }}
             </x-responsive-nav-link>
+            @endif
             <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" wire:navigate>
                 {{ __('Supplier') }}
             </x-responsive-nav-link>
+            @if(auth()->user()->role != 3)
             <x-responsive-nav-link :href="route('satuans.index')" :active="request()->routeIs('satuans.*')" wire:navigate>
                 {{ __('Satuan') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('items.index')" :active="request()->routeIs('items.*')" wire:navigate>
                 {{ __('Produk') }}
             </x-responsive-nav-link>
+            @endif
+            @if(auth()->user()->role != 3)
             <x-responsive-nav-link :href="route('pembelians.index')" :active="request()->routeIs('pembelians.*')" wire:navigate>
                 {{ __('Pembelian') }}
             </x-responsive-nav-link>
+            @endif
             <x-responsive-nav-link :href="route('transaksis.index')" :active="request()->routeIs('transaksis.*')" wire:navigate>
                 {{ __('Penjualan') }}
             </x-responsive-nav-link>
