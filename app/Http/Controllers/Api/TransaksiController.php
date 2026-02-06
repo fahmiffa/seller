@@ -45,6 +45,8 @@ class TransaksiController extends Controller
             // For this POS, let's allow FE to send it (e.g. for discounts) but default to DB if missing? 
             // Let's require it to be safe, or fetch if not present. I'll require it for now.
             'items.*.harga_satuan' => 'required|numeric|min:0',
+            'subtotal' => 'required|numeric|min:0',
+            'diskon' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -66,18 +68,14 @@ class TransaksiController extends Controller
                 ], 400);
             }
 
-            // Calculate total
-            $total_harga = 0;
-            foreach ($request->items as $itemData) {
-                $total_harga += $itemData['qty'] * $itemData['harga_satuan'];
-            }
-
             // Create Header
             $transaksi = Transaksi::create([
                 'customer_id' => $request->customer_id,
                 'user_id' => auth()->id(),
                 'tanggal_transaksi' => $request->tanggal_transaksi,
-                'total_harga' => $total_harga,
+                'subtotal' => $request->subtotal,
+                'diskon' => $request->diskon ?? 0,
+                'total_harga' => $request->subtotal - ($request->diskon ?? 0),
                 'metode_pembayaran' => $request->metode_pembayaran,
             ]);
 
