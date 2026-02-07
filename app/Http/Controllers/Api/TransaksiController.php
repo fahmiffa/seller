@@ -61,10 +61,10 @@ class TransaksiController extends Controller
             DB::beginTransaction();
 
             $user = auth()->user();
-            if ($user->saldo < 50000) {
+            if ($user->saldo <= $user->limit) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Saldo anda di bawah Rp 50.000, tidak dapat melakukan transaksi penjualan.'
+                    'message' => 'Saldo anda di bawah limit, tidak dapat melakukan transaksi penjualan.'
                 ], 400);
             }
 

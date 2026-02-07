@@ -74,6 +74,14 @@
                         </div>
 
                         <div class="mb-4">
+                            <label for="limit" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Limit</label>
+                            <input type="number" name="limit" id="limit" value="{{ old('limit', 0) }}" step="0.01" min="0" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                            @error('limit')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-4">
                             <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                             <select name="status" id="status" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
                                 <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Aktif</option>

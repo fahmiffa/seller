@@ -30,6 +30,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Parent</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Saldo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Limit</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
                                 </tr>
@@ -52,6 +53,7 @@
                                         {{ $user->parent->name ?? '-' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($user->saldo ?? 0, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($user->limit ?? 0, 0, ',', '.') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 py-1 text-xs font-semibold rounded-full {{ ($user->status ?? 'active') == 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' }}">
                                             {{ ($user->status ?? 'active') == 'active' ? 'Aktif' : 'Tidak Aktif' }}
@@ -68,7 +70,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada data user.</td>
+                                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada data user.</td>
                                 </tr>
                                 @endforelse
                             </tbody>

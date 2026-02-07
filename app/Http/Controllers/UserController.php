@@ -51,6 +51,7 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|integer|in:0,1,3',
             'saldo' => 'required|numeric|min:0',
+            'limit' => 'required|numeric|min:0',
             'status' => 'required|string|in:active,inactive',
             'parent_id' => 'nullable|exists:users,id',
         ]);
@@ -93,6 +94,7 @@ class UserController extends Controller
             'password' => 'nullable|string|confirmed',
             'role' => 'required|integer|in:0,1,3',
             'saldo' => 'required|numeric|min:0',
+            'limit' => 'required|numeric|min:0',
             'status' => 'required|string|in:active,inactive',
             'parent_id' => 'nullable|exists:users,id',
         ]);

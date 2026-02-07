@@ -46,6 +46,7 @@ class User extends Authenticatable implements JWTSubject
         'saldo',
         'status',
         'parent_id',
+        'limit',
     ];
 
     /**

@@ -63,7 +63,7 @@ class Create extends Component
 
     public function save()
     {
-        if (Auth::user()->saldo <= env('LIMIT')) {
+        if (Auth::user()->saldo <= Auth::user()->limit) {
             $this->dispatch('alert', message: 'Saldo limit, tidak bisa melakukan transaksi!');
             return;
         }
