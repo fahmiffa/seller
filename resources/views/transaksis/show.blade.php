@@ -9,8 +9,13 @@
         @media print {
             body {
                 background: white !important;
-                margin: 0;
-                padding: 0;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 58mm !important;
+            }
+
+            .py-12 {
+                padding: 0 !important;
             }
 
             .no-print {
@@ -22,13 +27,47 @@
             }
 
             .receipt-58 {
-                width: 58mm;
-                margin: 0 auto;
-                padding: 10px;
-                font-family: 'monospace';
-                font-size: 10px;
+                width: 50mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                font-family: 'Inter', 'Roboto', Helvetica, Arial, sans-serif;
+                font-size: 11px;
                 line-height: 1.2;
-                color: black;
+                color: #000 !important;
+                box-sizing: border-box;
+                word-wrap: break-word;
+            }
+
+            .receipt-58 * {
+                font-family: 'Inter', 'Roboto', Helvetica, Arial, sans-serif !important;
+                color: #000 !important;
+            }
+
+            .receipt-58 .divider {
+                border-bottom: 1px solid #000;
+                margin: 8px 0;
+            }
+
+            .receipt-58 .row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 2px;
+            }
+
+            .receipt-58 .item-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 8px 0;
+            }
+
+            .receipt-58 .item-table th {
+                text-align: left;
+                border-bottom: 1px solid #000;
+                padding-bottom: 4px;
+            }
+
+            .receipt-58 .item-table td {
+                padding: 4px 0;
             }
 
             .receipt-a4 {
@@ -169,45 +208,82 @@
         <div class="print-area">
             <!-- 58mm Receipt -->
             <div x-show="printType === '58'" class="receipt-58">
-                <div style="text-align: center; margin-bottom: 10px;">
-                    <h2 style="margin: 0; font-size: 14px;">{{ $transaksi->user->name }}</h2>
-                    <p style="margin: 0;">{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d/m/Y') }}</p>
-                    <p style="margin: 0;">No: INV-{{ $transaksi->transaksi_id }}</p>
-                    <p style="margin: 0;">Customer: {{ $transaksi->customer ? $transaksi->customer->nama : 'Umum' }}</p>
+                <div style="text-align: center; margin-bottom: 8px;">
+                    <h2 style="margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase;">{{ $transaksi->user->name }}</h2>
+                    <p style="margin: 0; font-size: 12px;">Struk Pembayaran</p>
                 </div>
 
-                <div style="border-bottom: 1px dashed #000; margin-bottom: 5px;"></div>
+                <div class="divider"></div>
 
-                @foreach($transaksi->details as $detail)
-                <div style="margin-bottom: 5px;">
-                    <div>{{ $detail->item->nama_item }}</div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>{{ $detail->qty }} x {{ number_format($detail->harga_satuan, 0, ',', '.') }}</span>
-                        <span>{{ number_format($detail->subtotal, 0, ',', '.') }}</span>
-                    </div>
+                <div class="row">
+                    <span>No. Transaksi:</span>
+                    <span style="font-weight: bold;">#{{ $transaksi->transaksi_id }}</span>
                 </div>
-                @endforeach
+                <div class="row">
+                    <span>Tanggal:</span>
+                    <span>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d-m-Y H:i') }}</span>
+                </div>
+                <div class="row">
+                    <span>Pelanggan:</span>
+                    <span>{{ $transaksi->customer ? $transaksi->customer->nama : 'Umum' }}</span>
+                </div>
 
-                <div style="border-bottom: 1px dashed #000; margin-bottom: 5px; margin-top: 5px;"></div>
+                <div class="divider"></div>
 
-                <div style="display: flex; justify-content: space-between; font-size: 10px;">
+                <table class="item-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;">Item</th>
+                            <th style="width: 15%;">Qty</th>
+                            <th style="width: 35%; text-align: right;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($transaksi->details as $detail)
+                        <tr>
+                            <td>
+                                {{ $detail->item->nama_item }}
+                                @if($detail->item->satuan)
+                                ({{ $detail->item->satuan->nama }})
+                                @endif
+                            </td>
+                            <td>{{ $detail->qty }}</td>
+                            <td style="text-align: right;">{{ number_format($detail->subtotal, 0, ',', '.') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <div class="divider"></div>
+
+                <div class="row">
                     <span>Subtotal</span>
-                    <span>Rp {{ number_format($transaksi->subtotal ?? $transaksi->total_harga, 0, ',', '.') }}</span>
+                    <span>{{ number_format($transaksi->subtotal ?? $transaksi->total_harga, 0, ',', '.') }}</span>
                 </div>
                 @if($transaksi->diskon > 0)
-                <div style="display: flex; justify-content: space-between; font-size: 10px; color: #666;">
+                <div class="row">
                     <span>Diskon</span>
-                    <span>- Rp {{ number_format($transaksi->diskon, 0, ',', '.') }}</span>
+                    <span>-{{ number_format($transaksi->diskon, 0, ',', '.') }}</span>
                 </div>
                 @endif
-                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 12px; margin-top: 5px;">
+
+                <div class="divider"></div>
+
+                <div class="row" style="font-weight: bold; font-size: 14px;">
                     <span>TOTAL</span>
                     <span>Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</span>
                 </div>
 
-                <div style="text-align: center; margin-top: 15px;">
-                    <p style="margin: 0;">Terima Kasih</p>
-                    <p style="margin: 0;">Selamat Belanja Kembali</p>
+                <div class="row" style="margin-top: 8px;">
+                    <span>Metode Pembayaran:</span>
+                    <span style="text-transform: capitalize;">{{ $transaksi->metode_pembayaran }}</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div style="text-align: center; margin-top: 12px;">
+                    <p style="margin: 0; font-weight: bold;">Terima Kasih</p>
+                    <p style="margin: 4px 0 0 0; font-size: 10px; line-height: 1.2;">Barang yang sudah dibeli tidak dapat ditukar/dikembalikan</p>
                 </div>
             </div>
 

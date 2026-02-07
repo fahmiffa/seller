@@ -20,20 +20,27 @@ class MonthlyDeduction extends Command
      */
     public function handle()
     {
-        $users = \App\Models\User::where('saldo', '>=', 50000)->get();
+        // Potongan bulanan diambil dari nilai 'limit' masing-masing user
+        // Hanya memotong jika saldo mencukupi (saldo >= limit)
+        // Kita exclude role 3 (Operator) karena mereka menggunakan saldo parent
+        $users = \App\Models\User::whereIn('role', [1, 2])
+            ->where('limit', '>', 0)
+            ->whereRaw('saldo >= `limit`')
+            ->get();
 
         foreach ($users as $user) {
-            $user->saldo -= 50000;
+            $amount = $user->limit;
+            $user->saldo -= $amount;
             $user->save();
 
             \App\Models\History::create([
                 'user_id' => $user->id,
                 'type' => 'deduction',
-                'amount' => 50000,
-                'description' => 'Monthly fee deduction',
+                'amount' => $amount,
+                'description' => 'Potongan biaya bulanan',
             ]);
         }
 
-        $this->info('Monthly deduction processed for ' . $users->count() . ' users.');
+        $this->info('Potongan bulanan diproses untuk ' . $users->count() . ' user.');
     }
 }
