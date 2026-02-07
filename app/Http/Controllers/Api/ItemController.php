@@ -58,7 +58,7 @@ class ItemController extends Controller
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'nullable|integer|min:0',
             'expired_at' => 'nullable|date',
-            'image' => 'nullable|image|max:3072', // Max 3MB
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -156,7 +156,7 @@ class ItemController extends Controller
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'nullable|integer|min:0',
             'expired_at' => 'nullable|date',
-            'image' => 'nullable|image|max:3072',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if ($validator->fails()) {
