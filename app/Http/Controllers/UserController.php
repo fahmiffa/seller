@@ -54,6 +54,7 @@ class UserController extends Controller
             'limit' => 'required|numeric|min:0',
             'status' => 'required|string|in:active,inactive',
             'parent_id' => 'nullable|exists:users,id',
+            'phone_number' => 'nullable|string|max:20',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -97,6 +98,7 @@ class UserController extends Controller
             'limit' => 'required|numeric|min:0',
             'status' => 'required|string|in:active,inactive',
             'parent_id' => 'nullable|exists:users,id',
+            'phone_number' => 'nullable|string|max:20',
         ]);
 
         if (empty($validated['password'])) {

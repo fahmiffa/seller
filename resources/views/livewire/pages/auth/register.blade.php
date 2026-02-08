@@ -5,6 +5,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use App\Rules\NumberWa;
 
 use function Livewire\Volt\layout;
 use function Livewire\Volt\rules;
@@ -15,6 +16,7 @@ layout('layouts.guest');
 state([
     'name' => '',
     'email' => '',
+    'phone_number' => '',
     'password' => '',
     'password_confirmation' => ''
 ]);
@@ -22,6 +24,7 @@ state([
 rules([
     'name' => ['required', 'string', 'max:255'],
     'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+    'phone_number' => ['nullable', 'string', 'max:20', new NumberWa],
     'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
 ]);
 
@@ -76,6 +79,22 @@ $register = function () {
                     type="email" name="email" required autocomplete="username" placeholder="name@company.com" />
             </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
+
+        <!-- Phone Number -->
+        <div>
+            <label for="phone_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                </div>
+                <input wire:model="phone_number" id="phone_number"
+                    class="block w-full pl-10 pr-3 py-3 rounded-xl border-gray-300 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
+                    type="text" name="phone_number" placeholder="08123456789" />
+            </div>
+            <x-input-error :messages="$errors->get('phone_number')" class="mt-2" />
         </div>
 
         <!-- Password -->
