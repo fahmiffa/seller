@@ -424,8 +424,14 @@
         <!-- 58mm Receipt -->
         <div x-show="printType === '58'" class="receipt-58">
             <div style="text-align: center; margin-bottom: 8px;">
-                <h2 style="margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase;">{{ auth()->user()->name }}</h2>
-                <p style="margin: 0; font-size: 12px;">Struk Pembayaran</p>
+                <h2 style="margin: 0; font-size: 16px; font-weight: bold; text-transform: uppercase;">{{ auth()->user()->getOwner()->name }}</h2>
+                @if(auth()->user()->getOwner()->address)
+                <p style="margin: 0; font-size: 10px;">{{ auth()->user()->getOwner()->address }}</p>
+                @endif
+                @if(auth()->user()->getOwner()->phone_number)
+                <p style="margin: 0; font-size: 10px;">{{ auth()->user()->getOwner()->phone_number }}</p>
+                @endif
+                <p style="margin: 4px 0 0 0; font-size: 11px; border-top: 1px dashed #000; padding-top: 4px;">Struk Pembayaran</p>
             </div>
 
             <div class="divider"></div>
@@ -501,8 +507,14 @@
         <div x-show="printType === 'A4'" class="receipt-a4">
             <div style="display: flex; justify-content: space-between; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px;">
                 <div>
-                    <h1 style="margin: 0; font-size: 24px;">{{ auth()->user()->name }}</h1>
-                    <p style="margin: 0; color: #666;">Invoice: {{ $printNo }}</p>
+                    <h1 style="margin: 0; font-size: 24px;">{{ auth()->user()->getOwner()->name }}</h1>
+                    @if(auth()->user()->getOwner()->address)
+                    <p style="margin: 0; color: #666;">{{ auth()->user()->getOwner()->address }}</p>
+                    @endif
+                    @if(auth()->user()->getOwner()->phone_number)
+                    <p style="margin: 0; color: #666;">Telp: {{ auth()->user()->getOwner()->phone_number }}</p>
+                    @endif
+                    <p style="margin: 5px 0 0 0; color: #666;">Invoice: {{ $printNo }}</p>
                 </div>
                 <div style="text-align: right;">
                     <p style="margin: 0;"><b>Tanggal:</b> {{ date('d F Y') }}</p>
