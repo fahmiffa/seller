@@ -14,6 +14,10 @@ return [
     |
     */
 
+    'numberwa' => [
+        'sender' => env('NUMBER_WA'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
