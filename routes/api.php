@@ -9,7 +9,8 @@ use App\Http\Controllers\Api\{
     ItemController,
     PembelianController,
     TransaksiController,
-    LaporanController
+    LaporanController,
+    AppConfigController
 };
 
 /*
@@ -23,6 +24,8 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('refresh',  [AuthController::class, 'refresh']);
 });
+
+Route::get('app-config', [AppConfigController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
