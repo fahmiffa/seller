@@ -126,6 +126,57 @@ class AuthController extends Controller
     }
 
     /**
+     * Update the authenticated User profile.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = auth('api')->user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'phone_number' => ['nullable', 'string', 'max:20'],
+            'address' => 'nullable|string',
+            'img' => 'nullable|image|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $data = $request->only('name', 'phone_number', 'address');
+
+        if ($request->hasFile('img')) {
+            // Delete old image
+            if ($user->img) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->img);
+            }
+
+            $file = $request->file('img');
+            $filename = $file->hashName();
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->read($file);
+            $image->scale(width: 500);
+            $encoded = $image->toJpeg(quality: 70);
+            \Illuminate\Support\Facades\Storage::disk('public')->put('users/' . $filename, $encoded);
+            $data['img'] = 'users/' . $filename;
+        }
+
+        $user->update($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil berhasil diperbarui',
+            'user' => $user
+        ]);
+    }
+
+    /**
      * Get the token array structure.
      *
      * @param  string $token

@@ -63,8 +63,14 @@ class UserController extends Controller
         $validated['password'] = Hash::make($validated['password']);
 
         if ($request->hasFile('img')) {
-            $path = $request->file('img')->store('users', 'public');
-            $validated['img'] = $path;
+            $file = $request->file('img');
+            $filename = $file->hashName();
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->read($file);
+            $image->scale(width: 500);
+            $encoded = $image->toJpeg(quality: 70);
+            Storage::disk('public')->put('users/' . $filename, $encoded);
+            $validated['img'] = 'users/' . $filename;
         }
 
         User::create($validated);
@@ -122,8 +128,14 @@ class UserController extends Controller
             if ($user->img) {
                 Storage::disk('public')->delete($user->img);
             }
-            $path = $request->file('img')->store('users', 'public');
-            $validated['img'] = $path;
+            $file = $request->file('img');
+            $filename = $file->hashName();
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->read($file);
+            $image->scale(width: 500);
+            $encoded = $image->toJpeg(quality: 70);
+            Storage::disk('public')->put('users/' . $filename, $encoded);
+            $validated['img'] = 'users/' . $filename;
         }
 
         $user->update($validated);

@@ -38,8 +38,14 @@ $updateProfileInformation = function () {
         if ($user->img) {
             Storage::disk('public')->delete($user->img);
         }
-        $path = $this->img->store('users', 'public');
-        $user->img = $path;
+        $file = $this->img;
+        $filename = $file->hashName();
+        $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+        $image = $manager->read($file->getRealPath());
+        $image->scale(width: 500);
+        $encoded = $image->toJpeg(quality: 70);
+        Storage::disk('public')->put('users/' . $filename, $encoded);
+        $user->img = 'users/' . $filename;
     }
 
     $user->fill([

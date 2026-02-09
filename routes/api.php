@@ -44,6 +44,7 @@ Route::middleware('auth:api')
         Route::prefix('auth')->group(function () {
             Route::post('logout',  [AuthController::class, 'logout']);
             Route::get('me',       [AuthController::class, 'me']);
+            Route::post('update-profile', [AuthController::class, 'updateProfile']);
         });
 
         /*
