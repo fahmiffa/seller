@@ -11,32 +11,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Get data for last 7 days
-        $dates         = [];
-        $penjualanData = [];
-        $pembelianData = [];
-
-        for ($i = 6; $i >= 0; $i--) {
-            $date    = Carbon::now()->subDays($i)->format('Y-m-d');
-            $dates[] = Carbon::now()->subDays($i)->format('d M');
-
-            // Penjualan per hari
-            $penjualanData[] = Transaksi::where('user_id', auth()->user()->getOwnerId())->whereDate('tanggal_transaksi', $date)->sum('total_harga');
-
-            // Pembelian per hari
-            $pembelianData[] = Pembelian::where('user_id', auth()->user()->getOwnerId())->whereDate('tanggal_pembelian', $date)->sum('total_pembelian');
-        }
-
-        // Stok barang (top 10 items)
-        $stokItems = Item::where('tipe_item', 'barang')
-            ->where('user_id', auth()->user()->getOwnerId())
-            ->orderBy('stok', 'desc')
-            ->limit(10)
-            ->get();
-
-        $itemNames = $stokItems->pluck('nama_item')->toArray();
-        $itemStoks = $stokItems->pluck('stok')->toArray();
-
         // Summary cards
         $totalPenjualanBulanIni = Transaksi::where('user_id', auth()->user()->getOwnerId())->whereMonth('tanggal_transaksi', Carbon::now()->month)
             ->whereYear('tanggal_transaksi', Carbon::now()->year)
@@ -55,11 +29,6 @@ class DashboardController extends Controller
             ->count();
 
         return view('dashboard', compact(
-            'dates',
-            'penjualanData',
-            'pembelianData',
-            'itemNames',
-            'itemStoks',
             'totalPenjualanBulanIni',
             'totalPembelianBulanIni',
             'totalTransaksiBulanIni',

@@ -193,8 +193,6 @@ $logout = function (Logout $logout) {
 
 <script>
     (function() {
-        let isInitialized = false;
-
         function updateIcons() {
             const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
             const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
@@ -269,9 +267,9 @@ $logout = function (Logout $logout) {
         }
 
         // Run after Livewire navigation (only bind once)
-        if (!isInitialized) {
+        if (!window.__themeToggleInitialized) {
             document.addEventListener('livewire:navigated', setupThemeToggle);
-            isInitialized = true;
+            window.__themeToggleInitialized = true;
         }
     })();
 </script>
