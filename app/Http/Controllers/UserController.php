@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -55,9 +56,16 @@ class UserController extends Controller
             'status' => 'required|string|in:active,inactive',
             'parent_id' => 'nullable|exists:users,id',
             'phone_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+
+        if ($request->hasFile('img')) {
+            $path = $request->file('img')->store('users', 'public');
+            $validated['img'] = $path;
+        }
 
         User::create($validated);
 
@@ -99,12 +107,23 @@ class UserController extends Controller
             'status' => 'required|string|in:active,inactive',
             'parent_id' => 'nullable|exists:users,id',
             'phone_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if (empty($validated['password'])) {
             unset($validated['password']);
         } else {
             $validated['password'] = Hash::make($validated['password']);
+        }
+
+        if ($request->hasFile('img')) {
+            // Delete old image
+            if ($user->img) {
+                Storage::disk('public')->delete($user->img);
+            }
+            $path = $request->file('img')->store('users', 'public');
+            $validated['img'] = $path;
         }
 
         $user->update($validated);
