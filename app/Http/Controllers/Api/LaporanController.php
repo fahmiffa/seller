@@ -14,9 +14,22 @@ class LaporanController extends Controller
     /**
      * Laporan Stok Barang
      */
-    public function stok()
+    public function stok(Request $request)
     {
+        $startDate = $request->input('start_date', date('Y-m-01'));
+        $endDate = $request->input('end_date', date('Y-m-d'));
+
         $stok = Item::select('item_id', 'nama_item', 'stok', 'harga_beli', 'harga_jual')
+            ->withSum(['detailPembelian as stok_masuk' => function ($query) use ($startDate, $endDate) {
+                $query->whereHas('pembelian', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('tanggal_pembelian', [$startDate, $endDate]);
+                });
+            }], 'qty')
+            ->withSum(['detailTransaksi as stok_keluar' => function ($query) use ($startDate, $endDate) {
+                $query->whereHas('transaksi', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('tanggal_transaksi', [$startDate, $endDate]);
+                });
+            }], 'qty')
             ->where('user_id', auth()->user()->getOwnerId())
             ->where('tipe_item', 'barang') // Hanya barang yang punya stok
             ->orderBy('stok', 'asc')
@@ -25,6 +38,7 @@ class LaporanController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Laporan Stok Barang',
+            'periode' => "$startDate - $endDate",
             'data' => $stok
         ]);
     }

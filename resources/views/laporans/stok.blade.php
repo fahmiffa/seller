@@ -71,16 +71,37 @@
                 }
             </style>
 
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6 no-print">
+                <div class="p-6">
+                    <form method="GET" action="{{ route('laporans.stok') }}" class="flex flex-wrap items-end gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dari Tanggal</label>
+                            <input type="date" name="tanggal_dari" value="{{ $startDate }}" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sampai Tanggal</label>
+                            <input type="date" name="tanggal_sampai" value="{{ $endDate }}" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                            Filter
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-semibold mb-4">Stok Barang Saat Ini</h3>
+                    <h3 class="text-lg font-semibold mb-2">Stok Barang</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Periode: {{ date('d M Y', strtotime($startDate)) }} - {{ date('d M Y', strtotime($endDate)) }}</p>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nama Item</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Satuan</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Stok</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider text-green-600">Masuk</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider text-red-600">Keluar</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Stok Akhir</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Harga Beli</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Harga Jual</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
@@ -91,9 +112,11 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $item->nama_item }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $item->satuan->nama_satuan }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-green-600 font-medium">+{{ number_format($item->stok_masuk ?? 0, 0, ',', '.') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-red-600 font-medium">-{{ number_format($item->stok_keluar ?? 0, 0, ',', '.') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="font-semibold {{ $item->stok <= 10 ? 'text-red-600' : 'text-gray-900 dark:text-gray-100' }}">
-                                            {{ $item->stok }}
+                                        <span class="font-bold {{ $item->stok <= 10 ? 'text-red-600' : 'text-gray-900 dark:text-gray-100' }}">
+                                            {{ number_format($item->stok, 0, ',', '.') }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($item->harga_beli, 0, ',', '.') }}</td>
@@ -116,7 +139,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada data stok barang.</td>
+                                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">Tidak ada data stok barang.</td>
                                 </tr>
                                 @endforelse
                             </tbody>

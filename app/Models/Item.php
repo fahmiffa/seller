@@ -46,4 +46,14 @@ class Item extends Model
     {
         return $this->belongsTo(\App\Models\User::class);
     }
+
+    public function detailTransaksi()
+    {
+        return $this->hasMany(DetailTransaksi::class, 'item_id');
+    }
+
+    public function detailPembelian()
+    {
+        return $this->hasMany(DetailPembelian::class, 'item_id');
+    }
 }

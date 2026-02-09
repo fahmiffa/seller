@@ -74,6 +74,14 @@
                         </div>
                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Lihat laporan stok barang saat ini</p>
                         <form action="{{ route('laporans.stok') }}" method="GET">
+                            <div class="mb-3">
+                                <label class="block text-sm font-medium mb-1">Tanggal Dari</label>
+                                <input type="date" name="tanggal_dari" value="{{ date('Y-m-01') }}" class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="block text-sm font-medium mb-1">Tanggal Sampai</label>
+                                <input type="date" name="tanggal_sampai" value="{{ date('Y-m-d') }}" class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm" required>
+                            </div>
                             <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
                                 Lihat Laporan
                             </button>

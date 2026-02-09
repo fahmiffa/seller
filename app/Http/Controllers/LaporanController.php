@@ -55,13 +55,26 @@ class LaporanController extends Controller
 
     public function stok(Request $request)
     {
+        $startDate = $request->tanggal_dari ?? date('Y-m-01');
+        $endDate = $request->tanggal_sampai ?? date('Y-m-d');
+
         $items = Item::with(['satuan'])
+            ->withSum(['detailPembelian as stok_masuk' => function ($query) use ($startDate, $endDate) {
+                $query->whereHas('pembelian', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('tanggal_pembelian', [$startDate, $endDate]);
+                });
+            }], 'qty')
+            ->withSum(['detailTransaksi as stok_keluar' => function ($query) use ($startDate, $endDate) {
+                $query->whereHas('transaksi', function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('tanggal_transaksi', [$startDate, $endDate]);
+                });
+            }], 'qty')
             ->where('user_id', auth()->user()->getOwnerId())
             ->where('tipe_item', 'barang')
             ->orderBy('nama_item')
             ->get();
 
-        return view('laporans.stok', compact('items'));
+        return view('laporans.stok', compact('items', 'request', 'startDate', 'endDate'));
     }
 
     public function labaRugi(Request $request)
