@@ -79,6 +79,15 @@ $logout = function (Logout $logout) {
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                            @if(auth()->user()->profile_image_url)
+                            <img class="h-8 w-8 rounded-full object-cover me-2" src="{{ auth()->user()->profile_image_url }}" alt="{{ auth()->user()->name }}" />
+                            @else
+                            <div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center me-2">
+                                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            @endif
                             <div x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
 
                             <div class="ms-1">
@@ -90,9 +99,11 @@ $logout = function (Logout $logout) {
                     </x-slot>
 
                     <x-slot name="content">
+                        @if(auth()->user()->role == 1)
                         <x-dropdown-link :href="route('profile')" wire:navigate>
                             {{ __('Profile') }}
                         </x-dropdown-link>
+                        @endif
 
                         <!-- Authentication -->
                         <button wire:click="logout" class="w-full text-start">
@@ -170,15 +181,28 @@ $logout = function (Logout $logout) {
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200" x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
-                <div class="font-medium text-sm text-gray-500">{{ auth()->user()->email }}</div>
+            <div class="px-4 flex items-center">
+                @if(auth()->user()->profile_image_url)
+                <img class="h-10 w-10 rounded-full object-cover me-3" src="{{ auth()->user()->profile_image_url }}" alt="{{ auth()->user()->name }}" />
+                @else
+                <div class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center me-3">
+                    <svg class="h-6 w-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                @endif
+                <div>
+                    <div class="font-medium text-base text-gray-800 dark:text-gray-200" x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
+                    <div class="font-medium text-sm text-gray-500">{{ auth()->user()->email }}</div>
+                </div>
             </div>
 
             <div class="mt-3 space-y-1">
+                @if(auth()->user()->role == 1)
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
+                @endif
 
                 <!-- Authentication -->
                 <button wire:click="logout" class="w-full text-start">

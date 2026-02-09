@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Rules\NumberWa;
 
@@ -139,6 +140,8 @@ class AuthController extends Controller
             'phone_number' => ['nullable', 'string', 'max:20'],
             'address' => 'nullable|string',
             'img' => 'nullable|image|max:2048',
+            'old_password' => 'nullable|string|min:8',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
@@ -147,6 +150,17 @@ class AuthController extends Controller
                 'message' => 'Validation error',
                 'errors' => $validator->errors()
             ], 422);
+        }
+
+        if ($request->filled('password')) {
+            if (!Hash::check($request->old_password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Password lama tidak sesuai',
+                ], 422);
+            }
+            $user->password = Hash::make($request->password);
+            $user->save();
         }
 
         $data = $request->only('name', 'phone_number', 'address');
