@@ -58,6 +58,7 @@ Route::middleware('auth:api')
             'satuans'    => SatuanController::class,
             'items'      => ItemController::class,
         ]);
+        Route::get('items/{id}/qrcode', [ItemController::class, 'qrcode'])->name('items.qrcode');
 
         /*
         |--------------------------

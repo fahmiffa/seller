@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Facades\Log;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 
 class ItemController extends Controller
@@ -29,11 +30,12 @@ class ItemController extends Controller
 
         $items = $query->latest()->get();
 
-        // Transform image URL
+        // Transform image URL and add QR code URL
         $items->transform(function ($item) {
             if ($item->image) {
                 $item->image_url = url(Storage::url($item->image));
             }
+            $item->qrcode_url = route('api.items.qrcode', $item->item_id);
             return $item;
         });
 
@@ -113,6 +115,7 @@ class ItemController extends Controller
         if ($item->image) {
             $item->image_url = url(Storage::url($item->image));
         }
+        $item->qrcode_url = route('api.items.qrcode', $item->item_id);
 
         return response()->json([
             'success' => true,
@@ -213,7 +216,6 @@ class ItemController extends Controller
                 'message' => 'Item berhasil diupdate',
                 'data' => $item
             ], 200);
-
         } catch (\Throwable $e) {
             Log::critical('Gagal update item', [
                 'message' => $e->getMessage(),
@@ -253,5 +255,25 @@ class ItemController extends Controller
             'success' => true,
             'message' => 'Item berhasil dihapus'
         ], 200);
+    }
+
+    /**
+     * Generate QR Code for an item.
+     */
+    public function qrcode($id)
+    {
+        $item = Item::where('user_id', auth()->user()->getOwnerId())->find($id);
+
+        if (!$item) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Item tidak ditemukan'
+            ], 404);
+        }
+
+        $qrData = $item->item_id . '-' . $item->user_id;
+        $qrCode = QrCode::format('png')->size(300)->margin(1)->generate($qrData);
+
+        return response($qrCode)->header('Content-Type', 'image/png');
     }
 }
