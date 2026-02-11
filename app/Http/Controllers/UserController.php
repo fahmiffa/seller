@@ -149,8 +149,37 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $this->checkAdminAccess();
-        $user->delete();
 
-        return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
+        try {
+            // Menggunakan transaksi database agar atomik (semua berhasil atau tidak sama sekali)
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            // 1. Ambil semua item milik user
+            $items = \App\Models\Item::where('user_id', $user->id)->get();
+
+            foreach ($items as $item) {
+                // 2. Hapus detail pembelian yang terkait dengan item ini
+                $item->detailPembelian()->delete();
+
+                // 3. Hapus detail transaksi yang terkait dengan item ini
+                $item->detailTransaksi()->delete();
+
+                // 4. Hapus item itu sendiri
+                $item->delete();
+            }
+
+            // Hapus Transaksi dan Pembelian jika foreign key user_id tidak cascade (opsional, tapi aman)
+            // Asumsi: Transaksi dan Pembelian mungkin sudah cascade or tidak, kita handle user delete
+
+            // 5. Hapus user
+            $user->delete();
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            return redirect()->route('users.index')->with('success', 'User dan data relasinya (Item, Transaksi terkait) berhasil dihapus.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal menghapus user: ' . $e->getMessage());
+        }
     }
 }
