@@ -16,9 +16,19 @@ class ItemController extends Controller
     public function printQrCode(Request $request)
     {
         $search = $request->input('search');
+        $ids = $request->input('ids');
+
         $items = Item::where('user_id', auth()->user()->getOwnerId())
             ->when($search, function ($query, $search) {
                 return $query->where('nama_item', 'like', "%{$search}%");
+            })
+            ->when($ids, function ($query, $ids) {
+                if (is_string($ids)) {
+                    $itemIds = explode(',', $ids);
+                } else {
+                    $itemIds = $ids;
+                }
+                return $query->whereIn('item_id', $itemIds);
             })
             ->get();
         return view('items.print-qrcode', compact('items'));

@@ -7,7 +7,7 @@
     <title>Print QR Label 112 (A4 Layout) - {{ config('app.name') }}</title>
     <style>
         :root {
-            --top-margin: 3.8mm;
+            --top-margin: 4.2mm;
             --side-margin: 5.5mm;
             --v-pitch: 10mm;
             --h-pitch: 22mm;
@@ -169,7 +169,7 @@
         <div class="grid-inputs">
             <div class="setting-group">
                 <label>Top Margin (cm)</label>
-                <input type="number" id="in-top" value="0.38" step="0.05" oninput="updateCSS()">
+                <input type="number" id="in-top" value="0.42" step="0.05" oninput="updateCSS()">
             </div>
             <div class="setting-group">
                 <label>Side Margin (cm)</label>
@@ -209,7 +209,7 @@
 
     @php
     $cols = 9;
-    $rows = 14;
+    $rows = 12;
     $labelsPerSheet = $cols * $rows;
     $chunks = $items->chunk($labelsPerSheet);
     @endphp
