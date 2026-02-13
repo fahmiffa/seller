@@ -11,6 +11,20 @@ use Intervention\Image\Drivers\Gd\Driver;
 class ItemController extends Controller
 {
     /**
+     * Display QR Code for printing.
+     */
+    public function printQrCode(Request $request)
+    {
+        $search = $request->input('search');
+        $items = Item::where('user_id', auth()->user()->getOwnerId())
+            ->when($search, function ($query, $search) {
+                return $query->where('nama_item', 'like', "%{$search}%");
+            })
+            ->get();
+        return view('items.print-qrcode', compact('items'));
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)

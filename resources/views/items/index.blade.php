@@ -20,9 +20,14 @@
                     </a>
                     @endif
                 </form>
-                <a href="{{ route('items.create') }}" wire:navigate class="w-full md:w-auto text-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
-                    Tambah Produk/Jasa
-                </a>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <a href="{{ route('items.print-qrcode', ['search' => $search]) }}" target="_blank" class="w-full md:w-auto text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
+                        Print QR Label (112)
+                    </a>
+                    <a href="{{ route('items.create') }}" wire:navigate class="w-full md:w-auto text-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-150">
+                        Tambah Produk/Jasa
+                    </a>
+                </div>
             </div>
 
             @if(session('success'))

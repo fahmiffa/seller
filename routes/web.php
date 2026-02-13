@@ -14,6 +14,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('customers', \App\Http\Controllers\CustomerController::class);
     Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
     Route::resource('satuans', \App\Http\Controllers\SatuanController::class);
+    Route::get('items/print-qrcode', [\App\Http\Controllers\ItemController::class, 'printQrCode'])->name('items.print-qrcode');
     Route::resource('items', \App\Http\Controllers\ItemController::class);
     Route::resource('pembelians', \App\Http\Controllers\PembelianController::class);
     Route::resource('transaksis', \App\Http\Controllers\TransaksiController::class);
