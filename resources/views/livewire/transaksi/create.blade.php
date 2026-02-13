@@ -82,10 +82,27 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
             <!-- Left Side: Product Selection -->
             <div class="md:col-span-8 space-y-4">
-                <!-- Search Bar -->
-                <div class="relative">
-                    <input type="text" wire:model.live="search" placeholder="Cari Items"
-                        class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-lg shadow-sm py-3 px-4">
+                <!-- Search Bar & QR Scan -->
+                <div class="flex gap-2">
+                    <div class="relative flex-grow">
+                        <input type="text" wire:model.live="search" placeholder="Cari Items"
+                            class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-lg shadow-sm py-3 px-4">
+                    </div>
+                    <button type="button" @click="startScanner()"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 rounded-lg flex items-center justify-center transition shadow-lg shadow-blue-500/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scan-qr-code">
+                            <path d="M17 12v5h-5" />
+                            <path d="M10 12h2v4" />
+                            <rect width="5" height="5" x="7" y="7" rx="1" />
+                            <path d="M7 17h.01" />
+                            <path d="M17 7h.01" />
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+                            <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+                            <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+                            <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+                        </svg>
+                        <span class="ml-2 hidden sm:inline">Scan QR</span>
+                    </button>
                 </div>
 
                 <div class="flex justify-center">
@@ -298,6 +315,36 @@
                 </div>
 
 
+            </div>
+        </div>
+    </div>
+
+    <!-- Scanner Modal -->
+    <div x-show="showScannerModal" x-cloak
+        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-75 no-print"
+        @keydown.escape.window="stopScanner()">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full flex flex-col"
+            @click.away="stopScanner()">
+            <!-- Modal Header -->
+            <div class="p-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 rounded-t-2xl flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Scan QR Code Barang</h3>
+                <button @click="stopScanner()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-4">
+                <div id="reader" style="width: 100%;"></div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-100 dark:border-gray-600 rounded-b-2xl flex justify-end">
+                <button @click="stopScanner()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 text-sm rounded-lg transition">
+                    Batal
+                </button>
             </div>
         </div>
     </div>
@@ -565,4 +612,5 @@
             </div>
         </div>
     </div>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </div>

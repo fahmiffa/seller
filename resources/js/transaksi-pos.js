@@ -3,6 +3,38 @@ export default function transaksiPOS() {
         pendingList: JSON.parse(localStorage.getItem("pending_trans") || "[]"),
         printType: "58",
         showPendingModal: false,
+        showScannerModal: false,
+        html5QrCode: null,
+
+        async startScanner() {
+            this.showScannerModal = true;
+            this.$nextTick(() => {
+                this.html5QrCode = new Html5Qrcode("reader");
+                const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                    this.$wire.scanResult(decodedText);
+                    this.stopScanner();
+                };
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+                this.html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    qrCodeSuccessCallback,
+                );
+            });
+        },
+
+        async stopScanner() {
+            if (this.html5QrCode) {
+                try {
+                    await this.html5QrCode.stop();
+                } catch (err) {
+                    console.error("Failed to stop scanner", err);
+                }
+                this.html5QrCode = null;
+            }
+            this.showScannerModal = false;
+        },
 
         async savePending() {
             // Wait for Livewire to sync and get the most recent state

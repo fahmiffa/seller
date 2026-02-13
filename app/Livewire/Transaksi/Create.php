@@ -65,6 +65,30 @@ class Create extends Component
         }
     }
 
+    public function scanResult($decodedText)
+    {
+        $parts = explode('-', $decodedText);
+        if (count($parts) < 1) {
+            $this->dispatch('alert', message: 'Format QR Code tidak sesuai!');
+            return;
+        }
+
+        $itemId = $parts[0];
+        $item = Item::where('item_id', $itemId)->first();
+
+        // Optional: check user_id if present in QR code
+        if (isset($parts[1]) && $item && $item->user_id != $parts[1]) {
+            $item = null;
+        }
+
+        if (!$item) {
+            $this->dispatch('alert', message: 'Produk tidak ditemukan!');
+            return;
+        }
+
+        $this->addToCart($item->item_id);
+    }
+
     public function incrementQty($index)
     {
         $item = Item::find($this->items_list[$index]['item_id']);
