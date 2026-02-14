@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Rules\NumberWa;
+use DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -208,5 +210,59 @@ class AuthController extends Controller
             'expires_in' => auth('api')->factory()->getTTL() * 60,
             'user' => auth('api')->user()
         ]);
+    }
+
+    public function forget(Request $request)
+    {
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'hp' => ['required', new NumberWa()],
+            ],
+            [
+                'hp.required' => 'Nomor wajib diisi.',
+            ]
+        );
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+        DB::beginTransaction();
+        try {
+            $user = User::where('phone_number', $request->hp)->first();
+            if (! $user) {
+                return response()->json([
+                    'errors' => ['hp' => 'Nomor tidak valid'],
+                ], 400);
+            }
+
+            $pass           = random_int(10000, 99999);
+            $user->password = bcrypt($pass);
+            $user->save();
+
+            $to       = '62' . substr($user->phone_number, 1);
+            $response = Http::post(env('URL_WA') . '/send', [
+                'number'  => env('NUMBER_WA'),
+                'to'      => $to,
+                'message' => "Anda reset Berhasil Password\nPassword akun anda : *" . $pass . "*",
+            ]);
+
+            if ($response->status() != 200) {
+                Log::error($response->json());
+                return response()->json([
+                    'errors' => ['hp' => 'Server Sibuk'],
+                ], 400);
+            } else {
+                DB::commit();
+                return response()->json([
+                    'status' => true,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            DB::rollback();
+            return response()->json(['error' => $e], 500);
+        }
     }
 }
