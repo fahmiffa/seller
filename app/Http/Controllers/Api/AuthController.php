@@ -77,7 +77,7 @@ class AuthController extends Controller
             'limit' => 10000,
             'phone_number' => $request->phone_number,
             'password' => bcrypt($request->password),
-            'trial' => $request->trial ?? 0,
+            'trial' => 1,
         ]);
 
         $token = auth('api')->login($user);
