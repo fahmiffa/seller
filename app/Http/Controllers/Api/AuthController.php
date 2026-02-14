@@ -37,10 +37,19 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        if (!$token = auth('api')->attempt($credentials)) {
+        if (! $token = auth('api')->attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau password salah'
+            ], 401);
+        }
+
+        $user = auth('api')->user();
+        if ($user->status !== 'active') {
+            auth('api')->logout();
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun anda tidak aktif, silahkan hubungi admin'
             ], 401);
         }
 
