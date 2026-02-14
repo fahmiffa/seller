@@ -84,7 +84,11 @@ class UserController extends Controller
     public function show(User $user)
     {
         $this->checkAdminAccess();
-        return view('users.show', compact('user'));
+
+        $items = $user->items()->with(['satuan', 'supplier'])->latest()->paginate(10, ['*'], 'items_page');
+        $transaksis = $user->transaksis()->with('customer')->latest()->paginate(10, ['*'], 'transaksis_page');
+
+        return view('users.show', compact('user', 'items', 'transaksis'));
     }
 
     /**
