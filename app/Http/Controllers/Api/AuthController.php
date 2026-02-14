@@ -214,30 +214,35 @@ class AuthController extends Controller
 
     public function forget(Request $request)
     {
-
         $validator = Validator::make(
             $request->all(),
-            [
-                'hp' => ['required', new NumberWa()],
-            ],
-            [
-                'hp.required' => 'Nomor wajib diisi.',
-            ]
+            ['hp' => 'required'],
+            ['hp.required' => 'Nomor wajib diisi.']
         );
+
         if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        // 1. Pertama cek nomor di model user dulu
+        $user = User::where('phone_number', $request->hp)->first();
+        if (!$user) {
             return response()->json([
-                'errors' => $validator->errors(),
+                'errors' => ['hp' => 'Nomor tidak terdaftar di sistem'],
             ], 400);
         }
+
+        // 2. Cek terdaftar sebagai nomor wa tidak
+        $waValidator = Validator::make($request->all(), [
+            'hp' => [new NumberWa()],
+        ]);
+
+        if ($waValidator->fails()) {
+            return response()->json(['errors' => $waValidator->errors()], 400);
+        }
+
         DB::beginTransaction();
         try {
-            $user = User::where('phone_number', $request->hp)->first();
-            if (! $user) {
-                return response()->json([
-                    'errors' => ['hp' => 'Nomor tidak valid'],
-                ], 400);
-            }
-
             $pass           = random_int(10000, 99999);
             $user->password = bcrypt($pass);
             $user->save();
