@@ -11,6 +11,7 @@ use App\Rules\NumberWa;
 use DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
@@ -224,6 +225,18 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
+        // Generate rate limit key based on phone number and IP
+        $throttleKey = 'forget-password:' . $request->hp . ':' . $request->ip();
+
+        // Limit to 3 requests per hour
+        if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            $minutes = ceil($seconds / 60);
+            return response()->json([
+                'errors' => ['hp' => "Terlalu banyak permintaan. Silakan coba lagi dalam $minutes menit."],
+            ], 429);
+        }
+
         // 1. Pertama cek nomor di model user dulu
         $user = User::where('phone_number', $request->hp)->first();
         if (!$user) {
@@ -261,6 +274,10 @@ class AuthController extends Controller
                 ], 400);
             } else {
                 DB::commit();
+
+                // Track the successful attempt for rate limiting
+                RateLimiter::hit($throttleKey, 3600); // 1 hour window
+
                 return response()->json([
                     'status' => true,
                 ]);
