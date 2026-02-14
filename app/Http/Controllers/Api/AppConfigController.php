@@ -14,11 +14,11 @@ class AppConfigController extends Controller
             'data' => [
                 'android' => [
                     'version' => '1.0.0',
-                    'build_number' => 6,
+                    'build_number' => env('BUILD_NUMBER'),
                     'force_update' => true,
                     'maintenance' => false,
                     'message' => 'Versi aplikasi terbaru sudah tersedia. Silahkan perbarui untuk melanjutkan.',
-                    'update_url' => 'https://play.google.com/store/apps/details?id=com.beres.sales' // Ganti dengan package name anda
+                    'update_url' => 'https://play.google.com/store/apps/details?id=com.qlabcode.beres' // Ganti dengan package name anda
                 ],
                 'ios' => [
                     'version' => '1.0.0',
