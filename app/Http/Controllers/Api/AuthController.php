@@ -56,6 +56,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'phone_number' => ['nullable', 'string', 'max:20', new NumberWa],
             'password' => 'required|string|min:6|confirmed',
+            'trial' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -73,6 +74,7 @@ class AuthController extends Controller
             'limit' => 10000,
             'phone_number' => $request->phone_number,
             'password' => bcrypt($request->password),
+            'trial' => $request->trial ?? 0,
         ]);
 
         $token = auth('api')->login($user);

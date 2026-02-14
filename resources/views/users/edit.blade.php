@@ -70,6 +70,15 @@
                                     </select>
                                     @error('status') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                                 </div>
+
+                                <div class="space-y-2">
+                                    <label for="trial" class="text-sm font-semibold text-gray-700 dark:text-gray-300">Tipe Layanan (Trial)</label>
+                                    <select name="trial" id="trial" class="w-full h-11 px-4 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 shadow-sm" required>
+                                        <option value="0" {{ old('trial', $user->trial ?? 0) == 0 ? 'selected' : '' }}>Full / Premium</option>
+                                        <option value="1" {{ old('trial', $user->trial ?? 0) == 1 ? 'selected' : '' }}>Trial (Uji Coba)</option>
+                                    </select>
+                                    @error('trial') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                                </div>
                             </div>
 
                             <!-- Address -->

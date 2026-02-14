@@ -74,7 +74,12 @@
                                             @endif
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ $user->name }}</div>
+                                            <div class="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                                {{ $user->name }}
+                                                @if($user->trial)
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800 uppercase tracking-tighter">Trial</span>
+                                                @endif
+                                            </div>
                                             <div class="text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
                                         </div>
                                     </div>
@@ -112,9 +117,16 @@
                                     <div class="text-xs text-gray-500 dark:text-gray-400">Limit: Rp{{ number_format($user->limit ?? 0, 0, ',', '.') }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ ($user->status ?? 'active') == 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
-                                        {{ ($user->status ?? 'active') == 'active' ? 'Aktif' : 'Non-aktif' }}
-                                    </span>
+                                    <div class="flex flex-col gap-1">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ ($user->status ?? 'active') == 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' }}">
+                                            {{ ($user->status ?? 'active') == 'active' ? 'Aktif' : 'Non-aktif' }}
+                                        </span>
+                                        @if($user->trial)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+                                            Trial Mode
+                                        </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end gap-2">

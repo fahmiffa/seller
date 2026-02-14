@@ -58,6 +58,7 @@ class UserController extends Controller
             'phone_number' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'trial' => 'required|boolean',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -119,6 +120,7 @@ class UserController extends Controller
             'phone_number' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'trial' => 'required|boolean',
         ]);
 
         if (empty($validated['password'])) {
