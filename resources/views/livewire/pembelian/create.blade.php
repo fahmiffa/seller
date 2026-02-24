@@ -7,7 +7,7 @@
                     <select wire:model="supplier_id" id="supplier_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
                         <option value="">Pilih Supplier</option>
                         @foreach($suppliers as $supplier)
-                            <option value="{{ $supplier->supplier_id }}">{{ $supplier->nama_supplier }}</option>
+                        <option value="{{ $supplier->supplier_id }}">{{ $supplier->nama_supplier }}</option>
                         @endforeach
                     </select>
                     @error('supplier_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
@@ -23,14 +23,30 @@
             <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-4">Tambah Item</h3>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div>
-                        <label for="item_temp_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item</label>
-                        <select wire:model.live="item_temp_id" id="item_temp_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                            <option value="">Pilih Item</option>
+                    <div class="relative" x-data="{ open: @entangle('show_items') }" @click.away="open = false">
+                        <label for="search_item" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item</label>
+                        <input type="text"
+                            wire:model.live.debounce.300ms="search_item"
+                            id="search_item"
+                            placeholder="Cari item..."
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                            autocomplete="off"
+                            @focus="open = true">
+
+                        @if($show_items && count($items) > 0)
+                        <div class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto" x-show="open">
                             @foreach($items as $item)
-                                <option value="{{ $item->item_id }}">{{ $item->nama_item }}</option>
+                            <div wire:click="selectItem({{ $item->item_id }}, '{{ addslashes($item->nama_item) }}')"
+                                class="px-4 py-2 cursor-pointer hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-600 transition duration-150">
+                                {{ $item->nama_item }}
+                            </div>
                             @endforeach
-                        </select>
+                        </div>
+                        @elseif($show_items && count($items) == 0 && $search_item != '')
+                        <div class="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg p-4 text-gray-500 text-sm" x-show="open">
+                            Item tidak ditemukan.
+                        </div>
+                        @endif
                         @error('item_temp_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
@@ -69,19 +85,19 @@
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             @forelse($items_list as $index => $item)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['nama_item'] }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['qty'] }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($item['harga_beli'], 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                                        <button type="button" wire:click="removeItem({{ $index }})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Hapus</button>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ $item['nama_item'] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ $item['qty'] }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($item['harga_beli'], 0, ',', '.') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right">
+                                    <button type="button" wire:click="removeItem({{ $index }})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Hapus</button>
+                                </td>
+                            </tr>
                             @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">Belum ada item ditambahkan.</td>
-                                </tr>
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">Belum ada item ditambahkan.</td>
+                            </tr>
                             @endforelse
                         </tbody>
                         <tfoot class="bg-gray-50 dark:bg-gray-700">

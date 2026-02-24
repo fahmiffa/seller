@@ -16,7 +16,11 @@ class Create extends Component
     public $tanggal_pembelian;
     public $items_list = []; // To store items added to the purchase
 
+    public $search_item = '';
+    public $show_items = false;
+
     public $item_temp_id;
+    public $item_temp_nama;
     public $qty_temp = 1;
     public $harga_temp;
 
@@ -46,8 +50,11 @@ class Create extends Component
 
         // Reset temp
         $this->item_temp_id = null;
+        $this->item_temp_nama = '';
+        $this->search_item = '';
         $this->qty_temp = 1;
         $this->harga_temp = null;
+        $this->show_items = false;
     }
 
     public function removeItem($index)
@@ -103,19 +110,42 @@ class Create extends Component
         return $this->redirect(route('pembelians.index'), navigate: true);
     }
 
-    public function updatedItemTempId($value)
+    public function selectItem($id, $nama)
+    {
+        $this->item_temp_id = $id;
+        $this->item_temp_nama = $nama;
+        $this->search_item = $nama;
+        $this->show_items = false;
+
+        $item = Item::find($id);
+        if ($item) {
+            $this->harga_temp = $item->harga_beli;
+        }
+    }
+
+    public function updatedSearchItem($value)
     {
         if ($value) {
-            $item = Item::find($value);
-            $this->harga_temp = $item->harga_beli;
+            $this->show_items = true;
+        } else {
+            $this->show_items = false;
+            $this->item_temp_id = null;
+            $this->item_temp_nama = '';
         }
     }
 
     public function render()
     {
+        $items = Item::where('user_id', Auth::id())
+            ->where('tipe_item', 'barang')
+            ->when($this->search_item, function ($query) {
+                $query->where('nama_item', 'like', '%' . $this->search_item . '%');
+            })
+            ->get();
+
         return view('livewire.pembelian.create', [
             'suppliers' => Supplier::where('user_id', Auth::id())->get(),
-            'items' => Item::where('user_id', Auth::id())->where('tipe_item', 'barang')->get(), // Only goods can be purchased
+            'items' => $items, // Only goods can be purchased
         ]);
     }
 }
