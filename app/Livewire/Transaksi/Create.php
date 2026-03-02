@@ -67,22 +67,25 @@ class Create extends Component
 
     public function scanResult($decodedText)
     {
+        if (empty($decodedText)) return;
+
+        // Try standard QR format: item_id-user_id
         $parts = explode('-', $decodedText);
-        if (count($parts) < 1) {
-            $this->dispatch('alert', message: 'Format QR Code tidak sesuai!');
-            return;
-        }
-
         $itemId = $parts[0];
-        $item = Item::where('item_id', $itemId)->first();
 
-        // Optional: check user_id if present in QR code
-        if (isset($parts[1]) && $item && $item->user_id != $parts[1]) {
-            $item = null;
+        $item = Item::where('user_id', Auth::id())
+            ->where('item_id', $itemId)
+            ->first();
+
+        // If not found by ID, maybe it's a barcode (if we had one) or exact name match
+        if (!$item) {
+            $item = Item::where('user_id', Auth::id())
+                ->where('nama_item', $decodedText)
+                ->first();
         }
 
         if (!$item) {
-            $this->dispatch('alert', message: 'Produk tidak ditemukan!');
+            $this->dispatch('alert', message: 'Produk tidak ditemukan: ' . $decodedText);
             return;
         }
 

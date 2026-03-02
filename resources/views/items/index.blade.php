@@ -30,15 +30,28 @@
         save() {
             localStorage.setItem('selected_qr_ids', JSON.stringify(this.selectedIds));
         },
-        clearAll() {
-            if(confirm('Batalkan semua pilihan?')) {
+        async clearAll() {
+            const result = await Swal.fire({
+                title: 'Batalkan semua pilihan?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Ya, batalkan',
+                cancelButtonText: 'Tidak'
+            });
+            if (result.isConfirmed) {
                 this.selectedIds = [];
                 this.save();
             }
         },
         printSelected() {
             if (this.selectedIds.length === 0) {
-                alert('Silakan pilih item yang ingin dicetak terlebih dahulu.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: 'Silakan pilih item yang ingin dicetak terlebih dahulu.',
+                });
                 return;
             }
             const url = '{{ route('items.print-qrcode') }}?ids=' + this.selectedIds.join(',');
@@ -170,7 +183,23 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <a href="{{ route('items.edit', $item) }}" wire:navigate class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">Edit</a>
-                                        <form action="{{ route('items.destroy', $item) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin?')">
+                                        <form action="{{ route('items.destroy', $item) }}" method="POST" class="inline-block"
+                                            x-on:submit.prevent="
+                                                Swal.fire({
+                                                    title: 'Apakah Anda yakin?',
+                                                    text: 'Data yang dihapus tidak dapat dikembalikan!',
+                                                    icon: 'warning',
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: '#d33',
+                                                    cancelButtonColor: '#3085d6',
+                                                    confirmButtonText: 'Ya, hapus!',
+                                                    cancelButtonText: 'Batal'
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        $el.submit();
+                                                    }
+                                                })
+                                            ">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">Hapus</button>

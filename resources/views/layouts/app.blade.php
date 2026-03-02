@@ -90,7 +90,15 @@
     <script>
         document.addEventListener('livewire:initialized', () => {
             Livewire.on('alert', (event) => {
-                alert(event.message || event[0].message);
+                const message = event.message || (Array.isArray(event) ? event[0].message : event.message);
+                const type = event.type || (Array.isArray(event) ? event[0].type : 'info');
+
+                Swal.fire({
+                    icon: type,
+                    title: 'Pemberitahuan',
+                    text: message,
+                    confirmButtonColor: '#3085d6',
+                });
             });
         });
     </script>

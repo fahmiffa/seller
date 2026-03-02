@@ -3,38 +3,8 @@ export default function transaksiPOS() {
         pendingList: JSON.parse(localStorage.getItem("pending_trans") || "[]"),
         printType: "58",
         showPendingModal: false,
-        showScannerModal: false,
-        html5QrCode: null,
-
-        async startScanner() {
-            this.showScannerModal = true;
-            this.$nextTick(() => {
-                this.html5QrCode = new Html5Qrcode("reader");
-                const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-                    this.$wire.scanResult(decodedText);
-                    this.stopScanner();
-                };
-                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-
-                this.html5QrCode.start(
-                    { facingMode: "environment" },
-                    config,
-                    qrCodeSuccessCallback,
-                );
-            });
-        },
-
-        async stopScanner() {
-            if (this.html5QrCode) {
-                try {
-                    await this.html5QrCode.stop();
-                } catch (err) {
-                    console.error("Failed to stop scanner", err);
-                }
-                this.html5QrCode = null;
-            }
-            this.showScannerModal = false;
-        },
+        barcodeBuffer: "",
+        lastKeyTime: 0,
 
         async savePending() {
             // Wait for Livewire to sync and get the most recent state
@@ -45,7 +15,11 @@ export default function transaksiPOS() {
             const total = await this.$wire.get("total");
 
             if (!items || items.length === 0) {
-                alert("Keranjang masih kosong!");
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Keranjang masih kosong!",
+                });
                 return;
             }
 
@@ -95,8 +69,19 @@ export default function transaksiPOS() {
             );
         },
 
-        removePending(id) {
-            if (confirm("Hapus transaksi pending ini?")) {
+        async removePending(id) {
+            const result = await Swal.fire({
+                title: "Hapus transaksi pending ini?",
+                text: "Anda tidak dapat mengembalikan data ini!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya, hapus!",
+                cancelButtonText: "Batal",
+            });
+
+            if (result.isConfirmed) {
                 const index = this.pendingList.findIndex(
                     (item) => item.id == id,
                 );
@@ -118,7 +103,11 @@ export default function transaksiPOS() {
                     this.pendingList.length === 0 &&
                     (!items || items.length === 0)
                 ) {
-                    alert("Keranjang masih kosong!");
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Keranjang masih kosong!",
+                    });
                     return;
                 }
             }
@@ -138,6 +127,37 @@ export default function transaksiPOS() {
         init() {
             this.$wire.on("print-receipt", (event) => {
                 this.printReceipt(event.type, true);
+            });
+
+            // USB Barcode Scanner Support
+            window.addEventListener("keydown", (e) => {
+                const currentTime = new Date().getTime();
+
+                // If the user is typing in an input field other than the search input, ignore
+                // But often scanners just type into whatever is active.
+                // We capture global keys to make it "magical"
+
+                if (currentTime - this.lastKeyTime > 50) {
+                    this.barcodeBuffer = "";
+                }
+
+                if (e.key === "Enter") {
+                    if (this.barcodeBuffer.length > 0) {
+                        this.$wire.scanResult(this.barcodeBuffer);
+                        this.barcodeBuffer = "";
+                        // If user was typing in an input (like search), clear it
+                        if (e.target.tagName === "INPUT") {
+                            e.target.value = "";
+                            // Force Livewire sync if needed, or just let it be
+                            this.$wire.set("search", "");
+                        }
+                        e.preventDefault();
+                    }
+                } else if (e.key.length === 1) {
+                    this.barcodeBuffer += e.key;
+                }
+
+                this.lastKeyTime = currentTime;
             });
         },
     };
