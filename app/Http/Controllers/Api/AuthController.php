@@ -82,8 +82,8 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'saldo' => 50000,
-            'limit' => 10000,
+            'saldo' => 40000,
+            'limit' => 40000,
             'phone_number' => $request->phone_number,
             'password' => bcrypt($request->password),
             'trial' => 1,
