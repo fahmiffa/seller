@@ -40,11 +40,14 @@ class UserTable extends Component
                     ->orWhere('email', 'like', '%' . $this->search . '%')
                     ->orWhere('phone_number', 'like', '%' . $this->search . '%');
             })
+            ->with(['parent'])
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
         return view('livewire.user-table', [
             'users' => $users
+        ])->layout('layouts.app', [
+            'header' => 'User Management'
         ]);
     }
 }

@@ -45,6 +45,8 @@ class SaldoTable extends Component
 
         return view('livewire.saldo-table', [
             'users' => $users
+        ])->layout('layouts.app', [
+            'header' => 'Saldo Management'
         ]);
     }
 }

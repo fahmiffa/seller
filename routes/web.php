@@ -10,7 +10,8 @@ Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'inde
     ->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::resource('users', \App\Http\Controllers\UserController::class);
+    Route::get('users', \App\Livewire\UserTable::class)->name('users.index');
+    Route::resource('users', \App\Http\Controllers\UserController::class)->except('index');
     Route::get('customers', \App\Livewire\CustomerTable::class)->name('customers.index');
     Route::resource('customers', \App\Http\Controllers\CustomerController::class)->except('index');
 
@@ -38,7 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/laporans/laba-rugi', [\App\Http\Controllers\LaporanController::class, 'labaRugi'])->name('laporans.laba-rugi');
 
     // Saldo Management Routes
-    Route::get('/saldos', [\App\Http\Controllers\SaldoController::class, 'index'])->name('saldos.index');
+    Route::get('/saldos', \App\Livewire\SaldoTable::class)->name('saldos.index');
     Route::get('/saldos/history', [\App\Http\Controllers\SaldoController::class, 'history'])->name('saldos.history');
     Route::post('/saldos/topup/{user}', [\App\Http\Controllers\SaldoController::class, 'topup'])->name('saldos.topup');
 });
