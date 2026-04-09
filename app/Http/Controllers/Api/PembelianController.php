@@ -66,7 +66,7 @@ class PembelianController extends Controller
             if ($user->tipe == 0 && $user->transaction_count >= 10) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Batas 10 transaksi tercapai. Silakan melakukan pembayaran untuk melanjutkan.'
+                    'message' => 'Batas transaksi telah tercapai. Silakan melakukan pembayaran untuk melanjutkan.'
                 ], 403);
             }
 
