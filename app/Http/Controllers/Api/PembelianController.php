@@ -55,11 +55,19 @@ class PembelianController extends Controller
             DB::beginTransaction();
 
             $user = auth()->user();
-            if ($user->saldo < 50000) {
+            if ($user->tipe == 1 && $user->saldo <= $user->limit) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Saldo anda di bawah Rp 50.000, tidak dapat melakukan transaksi pembelian.'
+                    'message' => 'Saldo anda di bawah limit, tidak dapat melakukan transaksi pembelian.'
                 ], 400);
+            }
+
+            // Basic user check (tipe 0) - Limit 10 transactions
+            if ($user->tipe == 0 && $user->transaction_count >= 10) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Batas 10 transaksi tercapai. Silakan melakukan pembayaran untuk melanjutkan.'
+                ], 403);
             }
 
             // Calculate total

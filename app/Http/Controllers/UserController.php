@@ -61,6 +61,7 @@ class UserController extends Controller
             'trial' => 'required|boolean',
             'tipe' => 'required|integer|in:0,1',
             'is_login' => 'required|boolean',
+            'transaction_count' => 'required|integer|min:0',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -125,6 +126,7 @@ class UserController extends Controller
             'trial' => 'required|boolean',
             'tipe' => 'required|integer|in:0,1',
             'is_login' => 'required|boolean',
+            'transaction_count' => 'required|integer|min:0',
         ]);
 
         if (empty($validated['password'])) {

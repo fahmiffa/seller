@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->integer('tipe')->default(0)->after('email');
-            $table->boolean('is_login')->default(0)->after('tipe');
+        Schema::table('users', function (Blueprint $column) {
+            $column->integer('transaction_count')->default(0)->after('is_login');
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['tipe', 'is_login']);
+        Schema::table('users', function (Blueprint $column) {
+            $column->dropColumn('transaction_count');
         });
     }
 };

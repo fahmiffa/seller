@@ -76,6 +76,12 @@
                                             @else
                                             <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800 uppercase tracking-tighter">Offline</span>
                                             @endif
+
+                                            @if($user->tipe == 0)
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold {{ $user->transaction_count >= 10 ? 'bg-red-500 text-white' : 'bg-blue-100 text-blue-700' }} border border-gray-200 uppercase tracking-tighter">
+                                                {{ $user->transaction_count }}/10
+                                            </span>
+                                            @endif
                                         </div>
                                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
                                     </div>

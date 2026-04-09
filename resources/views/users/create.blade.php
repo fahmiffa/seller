@@ -92,6 +92,12 @@
                                     </select>
                                     @error('is_login') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                                 </div>
+
+                                <div class="space-y-2">
+                                    <label for="transaction_count" class="text-sm font-semibold text-gray-700 dark:text-gray-300">Transaction Count (Cycle 10)</label>
+                                    <input type="number" name="transaction_count" id="transaction_count" value="{{ old('transaction_count', 0) }}" class="w-full h-11 px-4 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 shadow-sm" required>
+                                    @error('transaction_count') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                                </div>
                             </div>
 
                             <!-- Address -->

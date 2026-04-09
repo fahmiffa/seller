@@ -38,6 +38,13 @@ class LoginForm extends Form
             ]);
         }
 
+        if (Auth::user()->role !== 0 && Auth::user()->tipe === 0) {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'form.email' => 'Hanya akun Premium yang dapat mengakses aplikasi web.',
+            ]);
+        }
+
         if (Auth::user()->status !== 'active') {
             Auth::logout();
             throw ValidationException::withMessages([

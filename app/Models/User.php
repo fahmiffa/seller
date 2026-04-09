@@ -53,6 +53,7 @@ class User extends Authenticatable implements JWTSubject
         'trial',
         'tipe',
         'is_login',
+        'transaction_count',
     ];
 
     /**
@@ -115,6 +116,7 @@ class User extends Authenticatable implements JWTSubject
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_login' => 'boolean',
+            'transaction_count' => 'integer',
         ];
     }
 

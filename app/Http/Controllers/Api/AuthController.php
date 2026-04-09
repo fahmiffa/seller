@@ -222,6 +222,70 @@ class AuthController extends Controller
     }
 
     /**
+     * Pay service fee to reset transaction count for Basic users.
+     */
+    public function payServiceFee()
+    {
+        $user = auth('api')->user();
+
+        if ($user->tipe != 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya akun Basic yang perlu membayar biaya layanan per siklus.'
+            ], 400);
+        }
+
+        if ($user->transaction_count < 10) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batas transaksi belum tercapai.'
+            ], 400);
+        }
+
+        $fee = 2000;
+
+        if ($user->saldo < $fee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Saldo tidak mencukupi untuk membayar biaya layanan Rp 2.000. Silakan top up terlebih dahulu.'
+            ], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Deduct from owner (in case of operator)
+            $owner = $user->getOwner();
+            $owner->saldo -= $fee;
+            $owner->save();
+
+            // Record history
+            \App\Models\History::create([
+                'user_id' => $owner->id,
+                'type' => 'Service Fee',
+                'amount' => $fee,
+                'description' => 'Pembayaran biaya layanan per siklus 10 transaksi (Akun Basic)',
+            ]);
+
+            // Reset count
+            $user->update(['transaction_count' => 0]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Biaya layanan berhasil dibayarkan. Anda dapat bertransaksi kembali.',
+                'user' => $user->fresh()
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get the token array structure.
      *
      * @param  string $token

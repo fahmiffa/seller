@@ -61,11 +61,19 @@ class TransaksiController extends Controller
             DB::beginTransaction();
 
             $user = auth()->user();
-            if ($user->saldo <= $user->limit) {
+            if ($user->tipe == 1 && $user->saldo <= $user->limit) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Saldo anda di bawah limit, tidak dapat melakukan transaksi penjualan.'
                 ], 400);
+            }
+
+            // Basic user check (tipe 0) - Limit 10 transactions
+            if ($user->tipe == 0 && $user->transaction_count >= 10) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Batas 10 transaksi tercapai. Silakan melakukan pembayaran untuk melanjutkan.'
+                ], 403);
             }
 
             // Create Header
@@ -100,6 +108,11 @@ class TransaksiController extends Controller
                     'harga_satuan' => $itemData['harga_satuan'],
                     'subtotal' => $itemData['qty'] * $itemData['harga_satuan'],
                 ]);
+            }
+
+            // Increment transaction count for Basic users
+            if ($user->tipe == 0) {
+                $user->increment('transaction_count');
             }
 
             DB::commit();
