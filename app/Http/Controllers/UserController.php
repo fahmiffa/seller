@@ -59,6 +59,8 @@ class UserController extends Controller
             'address' => 'nullable|string',
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'trial' => 'required|boolean',
+            'tipe' => 'required|integer|in:0,1',
+            'is_login' => 'required|boolean',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -121,6 +123,8 @@ class UserController extends Controller
             'address' => 'nullable|string',
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'trial' => 'required|boolean',
+            'tipe' => 'required|integer|in:0,1',
+            'is_login' => 'required|boolean',
         ]);
 
         if (empty($validated['password'])) {

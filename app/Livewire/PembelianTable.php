@@ -48,6 +48,8 @@ class PembelianTable extends Component
 
         return view('livewire.pembelian-table', [
             'pembelians' => $pembelians
+        ])->layout('layouts.app', [
+            'header' => 'Daftar Pembelian'
         ]);
     }
 }

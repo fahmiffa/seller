@@ -45,6 +45,8 @@ class SatuanTable extends Component
 
         return view('livewire.satuan-table', [
             'satuans' => $satuans
+        ])->layout('layouts.app', [
+            'header' => 'Daftar Satuan'
         ]);
     }
 }

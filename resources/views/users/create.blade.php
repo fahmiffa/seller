@@ -74,6 +74,24 @@
                                     </select>
                                     @error('trial') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
                                 </div>
+
+                                <div class="space-y-2">
+                                    <label for="tipe" class="text-sm font-semibold text-gray-700 dark:text-gray-300">Tipe Akun</label>
+                                    <select name="tipe" id="tipe" class="w-full h-11 px-4 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 shadow-sm" required>
+                                        <option value="1" {{ old('tipe') == 1 ? 'selected' : '' }}>Premium</option>
+                                        <option value="0" {{ old('tipe', 0) == 0 ? 'selected' : '' }}>Basic</option>
+                                    </select>
+                                    @error('tipe') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="is_login" class="text-sm font-semibold text-gray-700 dark:text-gray-300">Status Login</label>
+                                    <select name="is_login" id="is_login" class="w-full h-11 px-4 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 shadow-sm" required>
+                                        <option value="0" {{ old('is_login', 0) == 0 ? 'selected' : '' }}>Logged Out</option>
+                                        <option value="1" {{ old('is_login') == 1 ? 'selected' : '' }}>Logged In</option>
+                                    </select>
+                                    @error('is_login') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror
+                                </div>
                             </div>
 
                             <!-- Address -->

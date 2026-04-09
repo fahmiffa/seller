@@ -11,13 +11,24 @@ Route::get('dashboard', [\App\Http\Controllers\DashboardController::class, 'inde
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('users', \App\Http\Controllers\UserController::class);
-    Route::resource('customers', \App\Http\Controllers\CustomerController::class);
-    Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
-    Route::resource('satuans', \App\Http\Controllers\SatuanController::class);
+    Route::get('customers', \App\Livewire\CustomerTable::class)->name('customers.index');
+    Route::resource('customers', \App\Http\Controllers\CustomerController::class)->except('index');
+
+    Route::get('suppliers', \App\Livewire\SupplierTable::class)->name('suppliers.index');
+    Route::resource('suppliers', \App\Http\Controllers\SupplierController::class)->except('index');
+
+    Route::get('satuans', \App\Livewire\SatuanTable::class)->name('satuans.index');
+    Route::resource('satuans', \App\Http\Controllers\SatuanController::class)->except('index');
+
     Route::get('items/print-qrcode', [\App\Http\Controllers\ItemController::class, 'printQrCode'])->name('items.print-qrcode');
-    Route::resource('items', \App\Http\Controllers\ItemController::class);
-    Route::resource('pembelians', \App\Http\Controllers\PembelianController::class);
-    Route::resource('transaksis', \App\Http\Controllers\TransaksiController::class);
+    Route::get('items', \App\Livewire\ItemTable::class)->name('items.index');
+    Route::resource('items', \App\Http\Controllers\ItemController::class)->except('index');
+
+    Route::get('pembelians', \App\Livewire\PembelianTable::class)->name('pembelians.index');
+    Route::resource('pembelians', \App\Http\Controllers\PembelianController::class)->except('index');
+
+    Route::get('transaksis', \App\Livewire\TransaksiTable::class)->name('transaksis.index');
+    Route::resource('transaksis', \App\Http\Controllers\TransaksiController::class)->except('index');
 
     // Laporan Routes
     Route::get('/laporans', [\App\Http\Controllers\LaporanController::class, 'index'])->name('laporans.index');

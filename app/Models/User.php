@@ -51,6 +51,8 @@ class User extends Authenticatable implements JWTSubject
         'address',
         'img',
         'trial',
+        'tipe',
+        'is_login',
     ];
 
     /**
@@ -112,6 +114,7 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_login' => 'boolean',
         ];
     }
 

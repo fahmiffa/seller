@@ -47,6 +47,8 @@ class CustomerTable extends Component
 
         return view('livewire.customer-table', [
             'customers' => $customers
+        ])->layout('layouts.app', [
+            'header' => 'Daftar Customer'
         ]);
     }
 }

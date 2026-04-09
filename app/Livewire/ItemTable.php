@@ -46,6 +46,8 @@ class ItemTable extends Component
 
         return view('livewire.item-table', [
             'items' => $items
+        ])->layout('layouts.app', [
+            'header' => 'Produk & Jasa Management'
         ]);
     }
 }

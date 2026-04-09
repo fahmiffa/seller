@@ -45,6 +45,16 @@ class AuthController extends Controller
         }
 
         $user = auth('api')->user();
+
+        // Single Device Login logic for Basic users (tipe 0)
+        if ($user->tipe == 0 && $user->is_login) {
+            auth('api')->logout();
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun anda sedang digunakan di perangkat lain'
+            ], 403);
+        }
+
         if ($user->status !== 'active') {
             auth('api')->logout();
             return response()->json([
@@ -52,6 +62,9 @@ class AuthController extends Controller
                 'message' => 'Akun anda tidak aktif, silahkan hubungi admin'
             ], 401);
         }
+
+        // Set is_login to 1 upon successful login
+        $user->update(['is_login' => 1]);
 
         return $this->respondWithToken($token);
     }
@@ -122,6 +135,10 @@ class AuthController extends Controller
      */
     public function logout()
     {
+        $user = auth('api')->user();
+        if ($user) {
+            $user->update(['is_login' => 0]);
+        }
         auth('api')->logout();
 
         return response()->json([

@@ -57,6 +57,8 @@ class TransaksiTable extends Component
 
         return view('livewire.transaksi-table', [
             'transaksis' => $transaksis
+        ])->layout('layouts.app', [
+            'header' => 'Riwayat Transaksi'
         ]);
     }
 }

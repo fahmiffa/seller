@@ -47,6 +47,8 @@ class SupplierTable extends Component
 
         return view('livewire.supplier-table', [
             'suppliers' => $suppliers
+        ])->layout('layouts.app', [
+            'header' => 'Daftar Supplier'
         ]);
     }
 }
