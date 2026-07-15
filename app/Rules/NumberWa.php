@@ -20,7 +20,7 @@ class NumberWa implements ValidationRule
         }
 
         try {
-            $response = Http::timeout(30)->post(env('URL_WA').'/number', [
+            $response = Http::timeout(30)->post(env('URL_WA').'/api/number', [
                 'number' => config('services.numberwa.sender'),
                 'to'     => $normalized,
             ]);

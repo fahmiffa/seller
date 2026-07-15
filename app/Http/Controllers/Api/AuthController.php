@@ -351,7 +351,7 @@ class AuthController extends Controller
             $user->save();
 
             $to       = '62' . substr($user->phone_number, 1);
-            $response = Http::post(env('URL_WA') . '/send', [
+            $response = Http::post(env('URL_WA') . 'api/send', [
                 'number'  => env('NUMBER_WA'),
                 'to'      => $to,
                 'message' => "Anda reset Berhasil Password\nPassword akun anda : *" . $pass . "*",
