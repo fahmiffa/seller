@@ -73,13 +73,13 @@ class Create extends Component
         $parts = explode('-', $decodedText);
         $itemId = $parts[0];
 
-        $item = Item::where('user_id', Auth::id())
+        $item = Item::where('user_id', Auth::user()->getOwnerId())
             ->where('item_id', $itemId)
             ->first();
 
         // If not found by ID, maybe it's a barcode (if we had one) or exact name match
         if (!$item) {
-            $item = Item::where('user_id', Auth::id())
+            $item = Item::where('user_id', Auth::user()->getOwnerId())
                 ->where('nama_item', $decodedText)
                 ->first();
         }
@@ -161,7 +161,7 @@ class Create extends Component
         DB::transaction(function () use (&$transaksiId) {
             $transaksi = Transaksi::create([
                 'customer_id' => $this->customer_id,
-                'user_id' => Auth::id(),
+                'user_id' => Auth::user()->getOwnerId(),
                 'tanggal_transaksi' => $this->tanggal_transaksi,
                 'subtotal' => $this->subtotal,
                 'diskon' => $this->diskon,
@@ -243,7 +243,7 @@ class Create extends Component
 
     public function render()
     {
-        $query = Item::where('user_id', Auth::id())
+        $query = Item::where('user_id', Auth::user()->getOwnerId())
             ->where('nama_item', 'like', '%' . $this->search . '%');
 
         if (!$this->showAll && empty($this->search)) {
@@ -253,7 +253,7 @@ class Create extends Component
         $items = $query->get();
 
         return view('livewire.transaksi.create', [
-            'customers' => Customer::where('user_id', Auth::id())->get(),
+            'customers' => Customer::where('user_id', Auth::user()->getOwnerId())->get(),
             'items' => $items,
         ]);
     }
