@@ -10,7 +10,12 @@ use App\Http\Controllers\Api\{
     PembelianController,
     TransaksiController,
     LaporanController,
-    AppConfigController
+    AppConfigController,
+    KomoditasController,
+    UnitController,
+    OrderController,
+    InvoiceController,
+    DashboardController
 };
 
 /*
@@ -51,6 +56,13 @@ Route::middleware('auth:api')
 
         /*
         |--------------------------
+        | DASHBOARD SUMMARY
+        |--------------------------
+        */
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        /*
+        |--------------------------
         | MASTER DATA
         |--------------------------
         */
@@ -59,8 +71,21 @@ Route::middleware('auth:api')
             'suppliers'  => SupplierController::class,
             'satuans'    => SatuanController::class,
             'items'      => ItemController::class,
+            'komoditas'  => KomoditasController::class,
+            'units'      => UnitController::class,
         ]);
         Route::get('items/{id}/qrcode', [ItemController::class, 'qrcode'])->name('items.qrcode');
+
+        /*
+        |--------------------------
+        | ORDER & INVOICE (Role 4 & 5)
+        |--------------------------
+        */
+        Route::apiResource('orders', OrderController::class);
+        
+        Route::apiResource('invoices', InvoiceController::class)->only(['index', 'show']);
+        Route::patch('invoices/{id}/mark-paid', [InvoiceController::class, 'markPaid'])->name('invoices.mark-paid');
+        Route::get('invoices/{id}/stream', [InvoiceController::class, 'stream'])->name('invoices.stream');
 
         /*
         |--------------------------
@@ -92,3 +117,4 @@ Route::middleware('auth:api')
         */
         Route::get('histories', [\App\Http\Controllers\Api\HistoryController::class, 'index']);
     });
+

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Item;
 use App\Models\Komoditas;
@@ -12,6 +13,7 @@ use App\Models\Supplier;
 use App\Models\Transaksi;
 use App\Models\Unit;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -23,7 +25,6 @@ class DashboardController extends Controller
         // Role 4: Distributor
         // -------------------------------------------------------
         if ($user->role == 4) {
-            // Unit yang dikelola distributor ini (milik sendiri + unit milik sub-user)
             $allowedUnitIds = Unit::where('user_id', $user->id)
                 ->orWhereHas('user', fn($q) => $q->where('parent_id', $user->id))
                 ->pluck('id');
@@ -45,11 +46,30 @@ class DashboardController extends Controller
             $invoiceUnpaid      = (clone $invoiceQuery)->where('payment_status', 'unpaid')->count();
             $invoiceTotalAmount = (clone $invoiceQuery)->sum('total');
 
-            return view('dashboard', compact(
-                'supplierCount', 'komoditasCount', 'unitCount', 'satuanCount',
-                'orderTotal', 'orderPending', 'orderDiproses', 'orderSelesai', 'orderDibatalkan',
-                'invoiceTotal', 'invoicePaid', 'invoiceUnpaid', 'invoiceTotalAmount'
-            ));
+            return response()->json([
+                'success' => true,
+                'message' => 'Dashboard ringkasan data distributor',
+                'data' => [
+                    'role' => 4,
+                    'supplier_count' => $supplierCount,
+                    'komoditas_count' => $komoditasCount,
+                    'unit_count' => $unitCount,
+                    'satuan_count' => $satuanCount,
+                    'orders' => [
+                        'total' => $orderTotal,
+                        'pending' => $orderPending,
+                        'diproses' => $orderDiproses,
+                        'selesai' => $orderSelesai,
+                        'dibatalkan' => $orderDibatalkan,
+                    ],
+                    'invoices' => [
+                        'total' => $invoiceTotal,
+                        'paid' => $invoicePaid,
+                        'unpaid' => $invoiceUnpaid,
+                        'total_amount' => (float) $invoiceTotalAmount,
+                    ]
+                ]
+            ], 200);
         }
 
         // -------------------------------------------------------
@@ -64,13 +84,24 @@ class DashboardController extends Controller
             $orderSelesai    = Order::whereIn('unit_id', $unitIds)->where('status', 'selesai')->count();
             $orderDibatalkan = Order::whereIn('unit_id', $unitIds)->where('status', 'dibatalkan')->count();
 
-            return view('dashboard', compact(
-                'orderTotal', 'orderPending', 'orderDiproses', 'orderSelesai', 'orderDibatalkan'
-            ));
+            return response()->json([
+                'success' => true,
+                'message' => 'Dashboard ringkasan data unit',
+                'data' => [
+                    'role' => 5,
+                    'orders' => [
+                        'total' => $orderTotal,
+                        'pending' => $orderPending,
+                        'diproses' => $orderDiproses,
+                        'selesai' => $orderSelesai,
+                        'dibatalkan' => $orderDibatalkan,
+                    ]
+                ]
+            ], 200);
         }
 
         // -------------------------------------------------------
-        // Role 0, 1, 2, 3: Dashboard standar
+        // Role 0, 1, 2, 3: Dashboard Standar
         // -------------------------------------------------------
         $totalPenjualanBulanIni = Transaksi::where('user_id', $user->getOwnerId())
             ->whereMonth('tanggal_transaksi', Carbon::now()->month)
@@ -92,11 +123,17 @@ class DashboardController extends Controller
             ->where('stok', '<=', 10)
             ->count();
 
-        return view('dashboard', compact(
-            'totalPenjualanBulanIni',
-            'totalPembelianBulanIni',
-            'totalTransaksiBulanIni',
-            'stokMenipis'
-        ));
+        return response()->json([
+            'success' => true,
+            'message' => 'Dashboard ringkasan data toko',
+            'data' => [
+                'role' => $user->role,
+                'total_penjualan_bulan_ini' => (float) $totalPenjualanBulanIni,
+                'total_pembelian_bulan_ini' => (float) $totalPembelianBulanIni,
+                'total_transaksi_bulan_ini' => $totalTransaksiBulanIni,
+                'stok_menipis' => $stokMenipis,
+                'saldo' => (float) ($user->saldo ?? 0),
+            ]
+        ], 200);
     }
 }

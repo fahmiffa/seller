@@ -44,7 +44,7 @@
                                     @endif
                                     <span class="text-sm text-gray-500 dark:text-gray-400 opacity-75">|</span>
                                     <span class="text-sm text-gray-500 dark:text-gray-400">
-                                        @if($user->role == 0) Admin @elseif($user->role == 3) Operator @else User/Mitra @endif
+                                        @if($user->role == 0) Admin @elseif($user->role == 3) Operator @elseif($user->role == 4) Distributor @else User/Mitra @endif
                                     </span>
                                 </div>
                             </div>

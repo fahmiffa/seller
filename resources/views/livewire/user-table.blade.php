@@ -101,6 +101,10 @@
                                     <span class="inline-flex items-center w-px-fit px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
                                         Operator
                                     </span>
+                                    @elseif($user->role == 4)
+                                    <span class="inline-flex items-center w-px-fit px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                                        Distributor
+                                    </span>
                                     @else
                                     <span class="inline-flex items-center w-px-fit px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
                                         User/Mitra

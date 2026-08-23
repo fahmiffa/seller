@@ -18,6 +18,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('suppliers', \App\Livewire\SupplierTable::class)->name('suppliers.index');
     Route::resource('suppliers', \App\Http\Controllers\SupplierController::class)->except('index');
 
+    Route::get('komoditas', \App\Livewire\KomoditasTable::class)->name('komoditas.index');
+    Route::resource('komoditas', \App\Http\Controllers\KomoditasController::class)->except('index');
+
+    Route::get('units', \App\Livewire\UnitTable::class)->name('units.index');
+    Route::resource('units', \App\Http\Controllers\UnitController::class)->except('index');
+
+    Route::get('orders', function () {
+        if (auth()->user()->role == 5) {
+            return app()->call(\App\Livewire\UnitOrderTable::class);
+        }
+        return app()->call(\App\Livewire\OrderTable::class);
+    })->name('orders.index');
+    Route::get('orders/{order}/stream', [\App\Http\Controllers\OrderController::class, 'streamPo'])->name('orders.stream');
+    Route::resource('orders', \App\Http\Controllers\OrderController::class)->except('index');
+
+    // Invoice routes (Role 4 only)
+    Route::get('invoices', \App\Livewire\InvoiceTable::class)->name('invoices.index');
+    Route::get('invoices/{invoice}/stream', [\App\Http\Controllers\InvoiceController::class, 'stream'])->name('invoices.stream');
+    Route::patch('invoices/{invoice}/mark-paid', [\App\Http\Controllers\InvoiceController::class, 'markPaid'])->name('invoices.mark-paid');
+
     Route::get('satuans', \App\Livewire\SatuanTable::class)->name('satuans.index');
     Route::resource('satuans', \App\Http\Controllers\SatuanController::class)->except('index');
 

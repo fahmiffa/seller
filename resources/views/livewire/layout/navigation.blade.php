@@ -24,6 +24,30 @@ $logout = function (Logout $logout) {
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    @if(auth()->user()->role == 4)
+                    <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" wire:navigate>
+                        {{ __('Supplier') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('komoditas.index')" :active="request()->routeIs('komoditas.*')" wire:navigate>
+                        {{ __('Komoditas') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('units.index')" :active="request()->routeIs('units.*')" wire:navigate>
+                        {{ __('Unit') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('satuans.index')" :active="request()->routeIs('satuans.*')" wire:navigate>
+                        {{ __('Satuan') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')" wire:navigate>
+                        {{ __('Order') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('invoices.index')" :active="request()->routeIs('invoices.*')" wire:navigate>
+                        {{ __('Invoice') }}
+                    </x-nav-link>
+                    @elseif(auth()->user()->role == 5)
+                    <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')" wire:navigate>
+                        {{ __('Order') }}
+                    </x-nav-link>
+                    @else
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -60,6 +84,7 @@ $logout = function (Logout $logout) {
                     <x-nav-link :href="route('saldos.index')" :active="request()->routeIs('saldos.*')" wire:navigate>
                         {{ __('Saldo Management') }}
                     </x-nav-link>
+                    @endif
                     @endif
                 </div>
             </div>
@@ -99,7 +124,7 @@ $logout = function (Logout $logout) {
                     </x-slot>
 
                     <x-slot name="content">
-                        @if(auth()->user()->role == 1)
+                        @if(auth()->user()->role == 1 || auth()->user()->role == 4)
                         <x-dropdown-link :href="route('profile')" wire:navigate>
                             {{ __('Profile') }}
                         </x-dropdown-link>
@@ -140,6 +165,30 @@ $logout = function (Logout $logout) {
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            @if(auth()->user()->role == 4)
+            <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" wire:navigate>
+                {{ __('Supplier') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('komoditas.index')" :active="request()->routeIs('komoditas.*')" wire:navigate>
+                {{ __('Komoditas') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('units.index')" :active="request()->routeIs('units.*')" wire:navigate>
+                {{ __('Unit') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('satuans.index')" :active="request()->routeIs('satuans.*')" wire:navigate>
+                {{ __('Satuan') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')" wire:navigate>
+                {{ __('Order') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('invoices.index')" :active="request()->routeIs('invoices.*')" wire:navigate>
+                {{ __('Invoice') }}
+            </x-responsive-nav-link>
+            @elseif(auth()->user()->role == 5)
+            <x-responsive-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')" wire:navigate>
+                {{ __('Order') }}
+            </x-responsive-nav-link>
+            @else
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
@@ -177,6 +226,7 @@ $logout = function (Logout $logout) {
                 {{ __('Saldo Management') }}
             </x-responsive-nav-link>
             @endif
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
@@ -198,7 +248,7 @@ $logout = function (Logout $logout) {
             </div>
 
             <div class="mt-3 space-y-1">
-                @if(auth()->user()->role == 1)
+                @if(auth()->user()->role == 1 || auth()->user()->role == 4)
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
                     {{ __('Profile') }}
                 </x-responsive-nav-link>

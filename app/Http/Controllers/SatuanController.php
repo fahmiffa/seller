@@ -12,7 +12,13 @@ class SatuanController extends Controller
      */
     public function index()
     {
-        $satuans = Satuan::where('user_id', auth()->user()->getOwnerId())->latest()->paginate(10);
+        $user = auth()->user();
+        // Role 5 (Unit): ambil satuan milik parent (Distributor)
+        if ($user->role == 5 && $user->parent_id) {
+            $satuans = Satuan::where('user_id', $user->parent_id)->latest()->paginate(10);
+        } else {
+            $satuans = Satuan::where('user_id', $user->getOwnerId())->latest()->paginate(10);
+        }
         return view('satuans.index', compact('satuans'));
     }
 

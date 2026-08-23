@@ -135,6 +135,7 @@
                                         <select name="role" id="role" class="w-full h-11 px-4 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 shadow-sm" required>
                                             <option value="1" {{ old('role', $user->role) == 1 ? 'selected' : '' }}>User/Mitra</option>
                                             <option value="3" {{ old('role', $user->role) == 3 ? 'selected' : '' }}>Operator</option>
+                                            <option value="4" {{ old('role', $user->role) == 4 ? 'selected' : '' }}>Distributor</option>
                                             <option value="0" {{ old('role', $user->role) == 0 ? 'selected' : '' }}>Admin</option>
                                         </select>
                                         @error('role') <p class="text-red-500 text-xs">{{ $message }}</p> @enderror

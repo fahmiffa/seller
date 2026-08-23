@@ -197,4 +197,28 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Transaksi::class);
     }
+
+    /**
+     * Get the komoditas for the user.
+     */
+    public function komoditas()
+    {
+        return $this->hasMany(Komoditas::class);
+    }
+
+    /**
+     * Get the units for the user.
+     */
+    public function units()
+    {
+        return $this->hasMany(Unit::class);
+    }
+
+    /**
+     * Get the satuans for the user.
+     */
+    public function satuans()
+    {
+        return $this->hasMany(Satuan::class);
+    }
 }
