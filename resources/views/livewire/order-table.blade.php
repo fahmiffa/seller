@@ -39,14 +39,14 @@
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">No</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Unit</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Supplier</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item Komoditas (Qty & Harga)</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Keterangan</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tanggal PO</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer" wire:click="sortBy('created_at')">
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">No</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Unit</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Supplier</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Item Komoditas (Qty & Harga)</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Keterangan</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Tanggal PO</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap" wire:click="sortBy('created_at')">
                                 <div class="flex items-center gap-1">
                                     Tanggal Dibuat
                                     @if($sortField === 'created_at')
@@ -54,7 +54,7 @@
                                     @endif
                                 </div>
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -73,16 +73,16 @@
                                         <span class="text-xs italic text-gray-400">Belum diverifikasi</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                                     <div class="space-y-1">
                                     @foreach($item->items as $orderItem)
                                         <div class="flex flex-col border-b border-gray-100 dark:border-gray-700 last:border-0 pb-1.5 last:pb-0 mb-1.5 last:mb-0">
-                                            <div class="flex justify-between items-center text-xs">
+                                            <div class="flex items-center justify-between gap-4 text-xs whitespace-nowrap">
                                                 <span class="font-medium text-gray-800 dark:text-gray-200">{{ $orderItem->komoditas ? $orderItem->komoditas->name : '-' }}</span>
                                                 <span class="text-gray-600 dark:text-gray-300 font-semibold">{{ number_format($orderItem->jumlah, 0, ',', '.') }} {{ $orderItem->satuan ? $orderItem->satuan->nama_satuan : '' }}</span>
                                             </div>
                                             @if(auth()->user()->role == 4)
-                                            <div class="text-[10px] mt-0.5 flex justify-between gap-2 text-gray-500 dark:text-gray-400">
+                                            <div class="text-[10px] mt-0.5 flex items-center justify-between gap-4 text-gray-500 dark:text-gray-400 whitespace-nowrap">
                                                 <span><span class="text-gray-400">Unit:</span> Rp {{ number_format($orderItem->harga_unit, 0, ',', '.') }}</span>
                                                 <span><span class="text-gray-400">Supp:</span> Rp {{ number_format($orderItem->harga_supplier, 0, ',', '.') }}</span>
                                             </div>
