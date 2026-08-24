@@ -104,6 +104,12 @@ class OrderController extends Controller
             }
 
             $unit = Unit::where('user_id', $user->id)->first();
+            if (!$unit) {
+                $unit = Unit::create([
+                    'name' => $user->name,
+                    'user_id' => $user->id,
+                ]);
+            }
             $order = null;
 
             DB::transaction(function () use ($request, $user, $unit, &$order) {
@@ -174,7 +180,7 @@ class OrderController extends Controller
                     $order->items()->create([
                         'komoditas_id' => $item['komoditas_id'],
                         'jumlah' => $item['jumlah'],
-                        'satuan_id' => $item['satuan_id'] ?? null,
+                        'satuan_id' => !empty($item['satuan_id']) ? $item['satuan_id'] : null,
                         'harga_unit' => $item['harga_unit'] ?? null,
                         'harga_supplier' => $item['harga_supplier'] ?? null,
                         'keterangan' => $item['keterangan'] ?? null,
@@ -255,6 +261,22 @@ class OrderController extends Controller
                 ], 200);
             }
 
+            if ($request->has('mark_dibatalkan') || $request->status === 'dibatalkan') {
+                if ($order->status !== 'pending') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Hanya order berstatus pending yang dapat dibatalkan.'
+                    ], 422);
+                }
+                $order->update(['status' => 'dibatalkan']);
+                $order->load(['supplier', 'unit', 'items.komoditas', 'items.satuan']);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Order berhasil dibatalkan',
+                    'data' => $order
+                ], 200);
+            }
+
             if ($order->status !== 'pending') {
                 return response()->json([
                     'success' => false,
@@ -290,7 +312,7 @@ class OrderController extends Controller
                     $order->items()->create([
                         'komoditas_id' => $item['komoditas_id'],
                         'jumlah' => $item['jumlah'],
-                        'satuan_id' => $item['satuan_id'] ?? null,
+                        'satuan_id' => !empty($item['satuan_id']) ? $item['satuan_id'] : null,
                         'keterangan' => $item['keterangan'] ?? null,
                     ]);
                 }
@@ -305,7 +327,7 @@ class OrderController extends Controller
             ], 200);
         } else {
             // Role 4 & 0
-            if ($request->has('mark_dibatalkan')) {
+            if ($request->has('mark_dibatalkan') || $request->status === 'dibatalkan') {
                 $order->update(['status' => 'dibatalkan']);
                 $order->load(['supplier', 'unit', 'items.komoditas', 'items.satuan']);
                 return response()->json([
