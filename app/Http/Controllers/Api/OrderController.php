@@ -120,7 +120,7 @@ class OrderController extends Controller
                     $order->items()->create([
                         'komoditas_id' => $item['komoditas_id'],
                         'jumlah' => $item['jumlah'],
-                        'satuan_id' => $item['satuan_id'] ?? null,
+                        'satuan_id' => !empty($item['satuan_id']) ? $item['satuan_id'] : null,
                         'keterangan' => $item['keterangan'] ?? null,
                     ]);
                 }
@@ -316,7 +316,7 @@ class OrderController extends Controller
             }
 
             $validator = Validator::make($request->all(), [
-                'unit_id' => 'required|in:' . $allowedUnitIds->implode(','),
+                'unit_id' => 'nullable|in:' . $allowedUnitIds->implode(','),
                 'supplier_id' => 'required|exists:suppliers,supplier_id',
                 'items' => 'required|array|min:1',
                 'items.*.komoditas_id' => 'required|exists:komoditas,id',
@@ -342,11 +342,11 @@ class OrderController extends Controller
 
             DB::transaction(function () use ($request, $order) {
                 $order->update([
-                    'unit_id' => $request->unit_id,
+                    'unit_id' => $request->unit_id ?? $order->unit_id,
                     'supplier_id' => $request->supplier_id,
                     'status' => $request->status,
-                    'tanggal_po' => $request->tanggal_po ?? null,
-                    'keterangan' => $request->keterangan ?? null,
+                    'tanggal_po' => $request->tanggal_po ?? ($request->status === 'diproses' ? now() : $order->tanggal_po),
+                    'keterangan' => $request->keterangan ?? $order->keterangan,
                 ]);
 
                 $order->items()->delete();
@@ -355,7 +355,7 @@ class OrderController extends Controller
                     $order->items()->create([
                         'komoditas_id' => $item['komoditas_id'],
                         'jumlah' => $item['jumlah'],
-                        'satuan_id' => $item['satuan_id'] ?? null,
+                        'satuan_id' => !empty($item['satuan_id']) ? $item['satuan_id'] : null,
                         'harga_unit' => $item['harga_unit'] ?? null,
                         'harga_supplier' => $item['harga_supplier'] ?? null,
                         'keterangan' => $item['keterangan'] ?? null,

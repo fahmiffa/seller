@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Unit;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UnitController extends Controller
 {
@@ -29,7 +33,7 @@ class UnitController extends Controller
         $user = auth()->user();
         $allowedUnitIds = $this->getAllowedUnitIds();
 
-        $units = Unit::with('user:id,name,email,role')
+        $units = Unit::with('user:id,name,email,role,address,phone_number')
             ->whereIn('id', $allowedUnitIds)
             ->latest()
             ->get();
@@ -53,7 +57,12 @@ class UnitController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'user_id' => 'nullable|exists:users,id',
+            'email' => 'required|email|unique:users,email',
+            'alamat' => 'nullable|string',
+            'address' => 'nullable|string',
+            'nomor_hp' => 'nullable|string|max:20',
+            'phone_number' => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:6',
         ]);
 
         if ($validator->fails()) {
@@ -64,24 +73,56 @@ class UnitController extends Controller
             ], 422);
         }
 
-        $targetUserId = $request->user_id ?? $user->id;
+        $ownerId = $user->getOwnerId();
 
-        $unit = Unit::create([
-            'name' => $request->name,
-            'user_id' => $targetUserId,
-        ]);
+        try {
+            DB::beginTransaction();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Unit berhasil ditambahkan',
-            'data' => $unit
-        ], 201);
+            $password = !empty($request->password) ? $request->password : 'password123';
+            $unitUser = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($password),
+                'role' => 5,
+                'parent_id' => $ownerId,
+                'address' => $request->alamat ?? $request->address ?? null,
+                'phone_number' => $request->nomor_hp ?? $request->phone_number ?? null,
+                'saldo' => 0,
+                'limit' => 0,
+                'status' => 'active',
+                'trial' => 0,
+                'tipe' => 1,
+                'is_login' => 0,
+                'transaction_count' => 0,
+            ]);
+
+            $unit = Unit::create([
+                'name' => $request->name,
+                'user_id' => $unitUser->id,
+            ]);
+
+            DB::commit();
+
+            $unit->load('user:id,name,email,role,address,phone_number');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Unit dan akun pengguna berhasil dibuat.',
+                'data' => $unit
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat unit: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function show($id)
     {
         $allowedUnitIds = $this->getAllowedUnitIds();
-        $unit = Unit::with('user:id,name,email,role')
+        $unit = Unit::with('user:id,name,email,role,address,phone_number')
             ->whereIn('id', $allowedUnitIds)
             ->find($id);
 
@@ -110,7 +151,7 @@ class UnitController extends Controller
         }
 
         $allowedUnitIds = $this->getAllowedUnitIds();
-        $unit = Unit::whereIn('id', $allowedUnitIds)->find($id);
+        $unit = Unit::with('user')->whereIn('id', $allowedUnitIds)->find($id);
 
         if (!$unit) {
             return response()->json([
@@ -119,9 +160,21 @@ class UnitController extends Controller
             ], 404);
         }
 
+        $unitUser = $unit->user;
+        $userId = $unitUser ? $unitUser->id : null;
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'user_id' => 'nullable|exists:users,id',
+            'email' => [
+                'nullable',
+                'email',
+                $userId ? Rule::unique('users', 'email')->ignore($userId) : 'unique:users,email',
+            ],
+            'alamat' => 'nullable|string',
+            'address' => 'nullable|string',
+            'nomor_hp' => 'nullable|string|max:20',
+            'phone_number' => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:6',
         ]);
 
         if ($validator->fails()) {
@@ -132,18 +185,49 @@ class UnitController extends Controller
             ], 422);
         }
 
-        $updateData = ['name' => $request->name];
-        if ($request->has('user_id')) {
-            $updateData['user_id'] = $request->user_id;
+        try {
+            DB::beginTransaction();
+
+            $unit->update([
+                'name' => $request->name,
+            ]);
+
+            if ($unitUser) {
+                $userUpdates = [
+                    'name' => $request->name,
+                ];
+                if ($request->filled('email')) {
+                    $userUpdates['email'] = $request->email;
+                }
+                if ($request->has('alamat') || $request->has('address')) {
+                    $userUpdates['address'] = $request->alamat ?? $request->address;
+                }
+                if ($request->has('nomor_hp') || $request->has('phone_number')) {
+                    $userUpdates['phone_number'] = $request->nomor_hp ?? $request->phone_number;
+                }
+                if (!empty($request->password)) {
+                    $userUpdates['password'] = Hash::make($request->password);
+                }
+
+                $unitUser->update($userUpdates);
+            }
+
+            DB::commit();
+
+            $unit->load('user:id,name,email,role,address,phone_number');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Unit berhasil diupdate',
+                'data' => $unit
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupdate unit: ' . $e->getMessage()
+            ], 500);
         }
-
-        $unit->update($updateData);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Unit berhasil diupdate',
-            'data' => $unit
-        ], 200);
     }
 
     public function destroy($id)
@@ -156,8 +240,9 @@ class UnitController extends Controller
             ], 403);
         }
 
+        $ownerId = $user->getOwnerId();
         $allowedUnitIds = $this->getAllowedUnitIds();
-        $unit = Unit::whereIn('id', $allowedUnitIds)->find($id);
+        $unit = Unit::with('user')->whereIn('id', $allowedUnitIds)->find($id);
 
         if (!$unit) {
             return response()->json([
@@ -166,11 +251,29 @@ class UnitController extends Controller
             ], 404);
         }
 
-        $unit->delete();
+        try {
+            DB::beginTransaction();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Unit berhasil dihapus'
-        ], 200);
+            $unitUser = $unit->user;
+            $unit->delete();
+
+            if ($unitUser && $unitUser->role == 5 && $unitUser->parent_id == $ownerId) {
+                $unitUser->delete();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Unit dan akun terkait berhasil dihapus'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus unit: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
+
